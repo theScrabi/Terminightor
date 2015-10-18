@@ -1,0 +1,16 @@
+<resources>
+
+    <!-- Base application theme. -->
+    <style name="AppTheme" parent="Theme.AppCompat.Light.DarkActionBar">
+        <item name="colorPrimary">@color/generalColor</item>
+        <item name="colorPrimaryDark">@color/colorPrimaryDark</item>
+        <item name="android:colorBackground">@color/generalColor</item>
+        <item name="android:textColorPrimary">@android:color/white</item>
+        <item name="colorAccent">@color/fabButtonColor</item>
+    </style>
+
+    <style name="WakeupTheme" parent="AppTheme">
+        <item name="colorPrimaryDark">@color/generalColor</item>
+    </style>
+
+</resources>

@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="generalColor">#21002F</color>
+    <color name="colorPrimaryDark">#15001E</color>
+    <color name="fabButtonColor">#cc0000</color>
+</resources>
