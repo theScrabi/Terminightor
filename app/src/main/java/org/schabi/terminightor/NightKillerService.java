@@ -35,7 +35,7 @@ import android.util.Log;
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with NewPipe.  If not, see <http://www.gnu.org/licenses/>.
+ * along with Terminightor.  If not, see <http://www.gnu.org/licenses/>.
  */
 
 public class NightKillerService extends Service {
@@ -185,7 +185,7 @@ public class NightKillerService extends Service {
         try {
             mediaPlayer = new MediaPlayer();
             mediaPlayer.setDataSource(this, Uri.parse(alarmTonePath));
-            mediaPlayer.setVolume(1.0f, 1.0f);
+            //mediaPlayer.setVolume(1.0f, 1.0f);
             mediaPlayer.setAudioStreamType(AudioManager.STREAM_ALARM);
             mediaPlayer.setLooping(true);
             mediaPlayer.prepare();

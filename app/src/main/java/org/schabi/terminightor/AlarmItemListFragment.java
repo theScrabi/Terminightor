@@ -26,7 +26,7 @@ import android.widget.ListView;
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with NewPipe.  If not, see <http://www.gnu.org/licenses/>.
+ * along with Terminightor.  If not, see <http://www.gnu.org/licenses/>.
  */
 
 public class AlarmItemListFragment extends ListFragment {
