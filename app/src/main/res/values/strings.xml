@@ -20,4 +20,8 @@
     <string name="title_activity_night_killer">Night Killer</string>
     <string name="use24HoursTitle">Display in 24 Hours.</string>
     <string name="vibrate">Vibrate</string>
+    <string name="overrideAlarmVolumeTitle">Override alarm volume.</string>
+    <string name="overrideAlarmVolumeDescription">Sets the alarm to full value when it\'s triggered.</string>
+    <string name="warningText">CAUTION: Do not use NFC Tags which change their id every time they get reed.</string>
+    <string name="unlockInfoText">Unlock screen, and enable NFC.</string>
 </resources>

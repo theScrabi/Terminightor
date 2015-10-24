@@ -14,6 +14,7 @@ import android.net.Uri;
 import android.os.Binder;
 import android.os.IBinder;
 import android.os.Vibrator;
+import android.preference.PreferenceManager;
 import android.support.v4.app.NotificationCompat;
 import android.support.v4.content.LocalBroadcastManager;
 import android.util.Log;
@@ -185,7 +186,11 @@ public class NightKillerService extends Service {
         try {
             mediaPlayer = new MediaPlayer();
             mediaPlayer.setDataSource(this, Uri.parse(alarmTonePath));
-            //mediaPlayer.setVolume(1.0f, 1.0f);
+            boolean overrideVolume = PreferenceManager.getDefaultSharedPreferences(this)
+                    .getBoolean(getString(R.string.overrideAlarmVolume), false);
+            if(overrideVolume) {
+                mediaPlayer.setVolume(1.0f, 1.0f);
+            }
             mediaPlayer.setAudioStreamType(AudioManager.STREAM_ALARM);
             mediaPlayer.setLooping(true);
             mediaPlayer.prepare();

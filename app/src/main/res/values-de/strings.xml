@@ -20,4 +20,8 @@
     <string name="title_activity_night_killer">Night Killer</string>
     <string name="use24HoursTitle">Anzeige im 24 Stunden Format.</string>
     <string name="vibrate">Vibrieren</string>
+    <string name="overrideAlarmVolumeTitle">Überschreibe Lautstärke.</string>
+    <string name="overrideAlarmVolumeDescription">Setzt den Allarm auf volle lautstärke wenn er los geht.</string>
+    <string name="warningText">ACHTUNG: Verwenden sie keine NFC Tags, welche ihre id jedesmal dann ändern wenn sie gelesen werden.\nBsp. Der deutsch Personalausweis.</string>
+    <string name="unlockInfoText">Bildschirm entsperren, und NFC einschalten.</string>
 </resources>

@@ -110,10 +110,20 @@
                 android:layout_centerHorizontal="true"
                 android:text="@string/noTagSet"/>
 
+            <TextView android:id="@+id/warningTextView"
+                android:layout_height="wrap_content"
+                android:layout_width="match_parent"
+                android:layout_marginLeft="20dp"
+                android:layout_marginRight="20dp"
+                android:textAppearance="?android:attr/textAppearanceMedium"
+                android:textColor="@android:color/holo_red_dark"
+                android:layout_below="@id/nfcTagIdView"
+                android:text="@string/warningText"/>
+
             <View
                 android:layout_width="match_parent"
                 android:layout_height="100dp"
-                android:layout_below="@id/nfcTagIdView"/>
+                android:layout_below="@id/warningTextView"/>
 
         </RelativeLayout>
 
