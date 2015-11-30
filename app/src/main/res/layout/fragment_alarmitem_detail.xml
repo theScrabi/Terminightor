@@ -26,7 +26,8 @@
                 android:layout_marginTop="10dp"
                 android:textAppearance="?android:attr/textAppearanceLarge"
                 android:textSize="70sp"
-                android:text="00:00"
+                android:text="--:--"
+                android:textColor="@android:color/white"
                 android:clickable="true"/>
 
             <TextView android:id="@+id/setAlarmAmPmSuffix"
@@ -36,6 +37,7 @@
                 android:layout_alignBottom="@id/setAlarmTimeView"
                 android:layout_marginBottom="10dp"
                 android:textAppearance="?android:attr/textAppearanceLarge"
+                android:textColor="@android:color/white"
                 android:text="AM" />
 
 
@@ -68,7 +70,7 @@
                 android:textAppearance="?android:attr/textAppearanceMedium"
                 android:textColorHint="@android:color/darker_gray"
                 android:hint="@string/alarmLabelBoxHint"
-                android:text=""
+                android:textColor="@android:color/white"
                 android:singleLine="true"/>
 
             <Button android:id="@+id/setAlarmToneButton"
@@ -80,6 +82,7 @@
                 android:layout_marginBottom="20dp"
                 android:drawableLeft="@drawable/ic_notifications_white_24dp"
                 android:text="@string/noneAlarmTone"
+                android:textColor="@android:color/white"
                 android:textAppearance="?android:attr/textAppearanceLarge"
                 android:background="@android:color/transparent"
                 style="?android:attr/borderlessButtonStyle"/>
@@ -108,6 +111,7 @@
                 android:textAppearance="?android:attr/textAppearanceLarge"
                 android:layout_below="@id/nfcTagLabelView"
                 android:layout_centerHorizontal="true"
+                android:textColor="@android:color/white"
                 android:text="@string/noTagSet"/>
 
             <TextView android:id="@+id/warningTextView"
@@ -131,10 +135,11 @@
 
     <android.support.design.widget.FloatingActionButton
         android:id="@+id/addNfcTagButton"
-        android:layout_margin="16pt"
+        android:layout_marginLeft="16dip"
+        android:layout_marginRight="16dip"
+        android:layout_marginBottom="16dip"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-
         android:layout_alignParentRight="true"
         android:layout_alignParentBottom="true"
         app:backgroundTint="@color/fabButtonColor"

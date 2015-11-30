@@ -5,13 +5,18 @@
         <item name="colorPrimary">@color/generalColor</item>
         <item name="colorPrimaryDark">@color/colorPrimaryDark</item>
         <item name="android:colorBackground">@color/generalColor</item>
-        <item name="android:textColorPrimary">@android:color/white</item>
+        <item name="android:windowBackground">@color/generalColor</item>
+        <!-- <item name="android:textColorPrimary">@android:color/white</item> -->
         <item name="colorAccent">@color/fabButtonColor</item>
-        <item name="android:textColorSecondary">@android:color/white</item>
     </style>
 
     <style name="WakeupTheme" parent="AppTheme">
         <item name="colorPrimaryDark">@color/generalColor</item>
+    </style>
+
+    <style name="SettingsStyle" parent="AppTheme">
+        <item name="android:textColorPrimary">@android:color/white</item>
+        <item name="android:textColorSecondary">@android:color/white</item>
     </style>
 
 </resources>

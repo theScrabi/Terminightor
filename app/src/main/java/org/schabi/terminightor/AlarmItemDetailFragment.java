@@ -2,6 +2,7 @@ package org.schabi.terminightor;
 
 import android.app.Activity;
 import android.app.TimePickerDialog;
+import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.media.Image;
@@ -165,7 +166,6 @@ public class AlarmItemDetailFragment extends Fragment {
                 timePickerDialog.show();
             }
         });
-        restoreItem();
 
         setAlarmToneButton.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -191,6 +191,8 @@ public class AlarmItemDetailFragment extends Fragment {
                 startActivityForResult(intent, READ_NFC_ID);
             }
         });
+
+        restoreItem();
     }
 
     @Override
@@ -266,9 +268,11 @@ public class AlarmItemDetailFragment extends Fragment {
     }
 
     public void restoreItem() {
+        Context c = getContext();
+        assert c != null;
         if(itemId >= 0) {
             AlarmDBOpenHelper alarmDBOpenHelper =
-                    AlarmDBOpenHelper.getAlarmDBOpenHelper(getActivity());
+                    AlarmDBOpenHelper.getAlarmDBOpenHelper(c);
             time = alarmDBOpenHelper.getAlarmTime(itemId);
             alarmTonePath = alarmDBOpenHelper.getAlarmTone(itemId);
             setAlarmTimeView.setText(TimeConverter.toString(time, use24Hours));
@@ -282,7 +286,7 @@ public class AlarmItemDetailFragment extends Fragment {
             }
             alarmLabelBox.setText(alarmDBOpenHelper.getName(itemId));
             setAlarmToneButton.setText(RingtoneManager
-                    .getRingtone(getActivity(), Uri.parse(alarmTonePath)).getTitle(getActivity()));
+                    .getRingtone(c, Uri.parse(alarmTonePath)).getTitle(c));
             vibrateCheckBox.setChecked(alarmDBOpenHelper.isVibrateEnabled(itemId));
             isEnabled = alarmDBOpenHelper.isAlarmEnabled(itemId);
             tagId = alarmDBOpenHelper.getNfcTagId(itemId);
@@ -297,8 +301,13 @@ public class AlarmItemDetailFragment extends Fragment {
             setAlarmAMPMView.setText("");
             Uri alarmToneUri = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_ALARM);
             alarmTonePath = alarmToneUri.toString();
-            setAlarmToneButton.setText(RingtoneManager.getRingtone(getActivity(), alarmToneUri)
-                    .getTitle(getActivity()));
+            try {
+                setAlarmToneButton.setText(RingtoneManager.getRingtone(c, alarmToneUri)
+                        .getTitle(c));
+            } catch(Exception e) {
+                e.printStackTrace();
+                setAlarmToneButton.setText(c.getString(R.string.defaultRingTone));
+            }
             vibrateCheckBox.setChecked(false);
         }
     }

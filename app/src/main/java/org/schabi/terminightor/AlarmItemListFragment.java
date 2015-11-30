@@ -110,7 +110,7 @@ public class AlarmItemListFragment extends ListFragment {
         View footerView = ((LayoutInflater) getActivity()
                 .getSystemService(Context.LAYOUT_INFLATER_SERVICE))
                 .inflate(R.layout.list_footer_view, null, false);
-        list.addFooterView(footerView);
+        list.addFooterView(footerView, null, false);
     }
 
     @Override

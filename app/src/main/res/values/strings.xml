@@ -24,4 +24,5 @@
     <string name="overrideAlarmVolumeDescription">Sets the alarm to full value when it\'s triggered.</string>
     <string name="warningText">CAUTION: Do not use NFC Tags which change their id every time they get reed.</string>
     <string name="unlockInfoText">Unlock screen, and enable NFC.</string>
+    <string name="defaultRingTone">Default</string>
 </resources>

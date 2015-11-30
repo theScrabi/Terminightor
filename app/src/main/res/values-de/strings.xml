@@ -24,4 +24,5 @@
     <string name="overrideAlarmVolumeDescription">Setzt den Allarm auf volle lautstärke wenn er los geht.</string>
     <string name="warningText">ACHTUNG: Verwenden sie keine NFC Tags, welche ihre id jedesmal dann ändern wenn sie gelesen werden.\nBsp. Der deutsch Personalausweis.</string>
     <string name="unlockInfoText">Bildschirm entsperren, und NFC einschalten.</string>
+    <string name="defaultRingTone">Standart</string>
 </resources>

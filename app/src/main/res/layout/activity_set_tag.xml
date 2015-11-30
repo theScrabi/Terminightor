@@ -40,6 +40,7 @@
         android:layout_centerInParent="true"
         android:textAppearance="?android:attr/textAppearanceLarge"
         android:layout_marginBottom="20dp"
+        android:textColor="@android:color/white"
         android:text="@string/tapToCancel"/>
 
 </RelativeLayout>
