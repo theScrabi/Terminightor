@@ -1,0 +1,29 @@
+<?xml version="1.0"?>
+<resources>
+    <string name="app_name">Terminightor</string>
+    <string name="title_alarmitem_detail">Alarm</string>
+    <string name="pm">PM</string>
+    <string name="am">AM</string>
+    <string name="repeatCheckBoxText">Opakování</string>
+    <string name="days_of_week_letters">PÚSČPSN</string>
+    <string name="alarmLabelBoxHint">popisek</string>
+    <string name="title_set_tag">Nastavit tag</string>
+    <string name="tapToCancel">Dotykem zrušit</string>
+    <string name="noTagSet">Tag nenastaven</string>
+    <string name="noNfcTagMessage">NFC tag nenastaven. Nějaký prosím nastavte.</string>
+    <string name="ok">OK</string>
+    <string name="cancel">Zrušit</string>
+    <string name="wrongTagToast">Chybný tag.</string>
+    <string name="alarm">Alarm!!!</string>
+    <string name="noneAlarmTone">Žádný</string>
+    <string name="selectAlarmToneTitle">Alarm</string>
+    <string name="title_activity_settings">Nastavení</string>
+    <string name="title_activity_night_killer">Zabiják noci</string>
+    <string name="use24HoursTitle">24 hodinové zobrazení.</string>
+    <string name="vibrate">Vibrovat</string>
+    <string name="overrideAlarmVolumeTitle">Vlastní hlasitost alarmu.</string>
+    <string name="overrideAlarmVolumeDescription">Nastaví alarm na plnou hodnotu při zvonění.</string>
+    <string name="warningText">VAROVÁNÍ: Nepoužívejte NFC tagy měnící ID při každém přečtení.</string>
+    <string name="unlockInfoText">Odemknout obrazovku a povolit NFC.</string>
+    <string name="defaultRingTone">Výchozí</string>
+</resources>
