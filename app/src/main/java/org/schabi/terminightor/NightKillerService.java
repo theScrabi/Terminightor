@@ -144,9 +144,8 @@ public class NightKillerService extends Service {
                 .setOngoing(true)
                 .build();
         Intent notificationIntent = new Intent(this.getApplicationContext(), NightKillerActivity.class);
-        PendingIntent contentIntent = PendingIntent.getActivity(this.getApplicationContext(),
+        n.contentIntent = PendingIntent.getActivity(this.getApplicationContext(),
                 SpecialPendingIds.OPEN_ALARM_ACTIVITY, notificationIntent, 0);
-        n.contentIntent = contentIntent;
         nm.notify(NOTIFICATION_ID, n);
 
         return START_STICKY;
