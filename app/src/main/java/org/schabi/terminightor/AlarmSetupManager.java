@@ -35,7 +35,8 @@ import java.util.Random;
 
 public class AlarmSetupManager extends BroadcastReceiver {
 
-    private static final String ACTION_RENEW_ALARMS = "org.schabi.Terminightor.AlarmSetupManager.ACTION_RENEW_ALARMS";
+    private static final String ACTION_RENEW_ALARMS =
+            "org.schabi.Terminightor.AlarmSetupManager.ACTION_RENEW_ALARMS";
 
     private static final String TAG = AlarmSetupManager.class.toString();
     public static final String ALARM_ID = "alarm_id";
@@ -128,11 +129,13 @@ public class AlarmSetupManager extends BroadcastReceiver {
                     alarmIntent.putExtra(ALARM_TONE, cursor.getString(index.ciAlarmTone));
                     alarmIntent.putExtra(ALARM_VIBRATE, cursor.getInt(index.ciVibrate) == 1);
                     PendingIntent alarmPendingIntent =
-                            PendingIntent.getBroadcast(context, cursor.getInt(index.ciId), alarmIntent, PendingIntent.FLAG_CANCEL_CURRENT);
+                            PendingIntent.getBroadcast(context, cursor.getInt(index.ciId),
+                                    alarmIntent, PendingIntent.FLAG_CANCEL_CURRENT);
 
 
                     if (Build.VERSION.SDK_INT >= 19) {
-                        alarmManager.setExact(AlarmManager.RTC_WAKEUP, alarmDate, alarmPendingIntent);
+                        alarmManager.setExact(AlarmManager.RTC_WAKEUP,
+                                alarmDate, alarmPendingIntent);
                     } else {
                         alarmManager.set(AlarmManager.RTC_WAKEUP, alarmDate, alarmPendingIntent);
                     }
@@ -160,7 +163,8 @@ public class AlarmSetupManager extends BroadcastReceiver {
         alarmIntent.putExtra(ALARM_REPEAT, false);
         alarmIntent.putExtra(ALARM_TONE, "content://media/internal/audio/media/10");
         alarmIntent.putExtra(ALARM_VIBRATE, true);
-        PendingIntent alarmPendingIntent = PendingIntent.getBroadcast(context, 42, alarmIntent, 0);
+        PendingIntent alarmPendingIntent = PendingIntent.getBroadcast(
+                context, 42, alarmIntent, PendingIntent.FLAG_UPDATE_CURRENT);
 
         if(Build.VERSION.SDK_INT >= 19) {
             alarmManager.setExact(AlarmManager.RTC_WAKEUP, alarmDate, alarmPendingIntent);
@@ -186,14 +190,16 @@ public class AlarmSetupManager extends BroadcastReceiver {
     public static boolean alarmIsUp(Context context, long id) {
         Intent alarmIntent = new Intent(NightKillerReceiver.ACTION_FIRE_ALARM);
         PendingIntent alarmPendingIntent =
-                PendingIntent.getBroadcast(context, (int)id, alarmIntent, PendingIntent.FLAG_NO_CREATE);
+                PendingIntent.getBroadcast(context, (int)id,
+                        alarmIntent, PendingIntent.FLAG_NO_CREATE);
         return alarmPendingIntent != null;
     }
 
     public static void cancelAlarm(Context context, long id) {
         AlarmManager alarmManager = (AlarmManager) context.getSystemService(Context.ALARM_SERVICE);
         Intent alarmIntent = new Intent(NightKillerReceiver.ACTION_FIRE_ALARM);
-        PendingIntent alarmPendingIntent = PendingIntent.getBroadcast(context, (int)id, alarmIntent, 0);
+        PendingIntent alarmPendingIntent = PendingIntent.getBroadcast(context,
+                (int)id, alarmIntent, PendingIntent.FLAG_UPDATE_CURRENT);
         alarmManager.cancel(alarmPendingIntent);
     }
 
@@ -211,7 +217,8 @@ public class AlarmSetupManager extends BroadcastReceiver {
         AlarmManager alarmManager = (AlarmManager) context.getSystemService(Context.ALARM_SERVICE);
         Intent alarmIntent = new Intent(ACTION_RENEW_ALARMS);
         PendingIntent alarmPendingIntent =
-                PendingIntent.getBroadcast(context, SpecialPendingIds.RENEW_ALARM, alarmIntent, 0);
+                PendingIntent.getBroadcast(context, SpecialPendingIds.RENEW_ALARM,
+                        alarmIntent, PendingIntent.FLAG_UPDATE_CURRENT);
         alarmManager.cancel(alarmPendingIntent);
     }
 
@@ -221,11 +228,14 @@ public class AlarmSetupManager extends BroadcastReceiver {
         setupDate.add(Calendar.DATE, 1);
         Intent renewIntent = new Intent(ACTION_RENEW_ALARMS);
         PendingIntent pendingSetupIntent =
-                PendingIntent.getBroadcast(context, SpecialPendingIds.RENEW_ALARM, renewIntent, 0);
+                PendingIntent.getBroadcast(context, SpecialPendingIds.RENEW_ALARM,
+                        renewIntent, PendingIntent.FLAG_UPDATE_CURRENT);
         if(Build.VERSION.SDK_INT >= 19) {
-            alarmManager.setExact(AlarmManager.RTC_WAKEUP, setupDate.getTimeInMillis(), pendingSetupIntent);
+            alarmManager.setExact(
+                    AlarmManager.RTC_WAKEUP, setupDate.getTimeInMillis(), pendingSetupIntent);
         } else {
-            alarmManager.set(AlarmManager.RTC_WAKEUP, setupDate.getTimeInMillis(), pendingSetupIntent);
+            alarmManager.set(
+                    AlarmManager.RTC_WAKEUP, setupDate.getTimeInMillis(), pendingSetupIntent);
         }
     }
 
