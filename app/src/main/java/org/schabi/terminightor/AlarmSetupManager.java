@@ -117,7 +117,13 @@ public class AlarmSetupManager extends BroadcastReceiver {
                 alarmTestDate.setTimeInMillis(alarmDate);
                 // subtract MONDAY, since the week of Calendar begins with day 2
                 // but we need monday being 0.
-                int alarmDayOfWeek = alarmTestDate.get(Calendar.DAY_OF_WEEK) - Calendar.MONDAY;
+                int alarmDayOfWeek;
+                if(alarmTestDate.get(Calendar.DAY_OF_WEEK) == Calendar.SUNDAY) {
+                    // we need to make sunday extra, since java is counting different to terminightor.
+                    alarmDayOfWeek = 6;
+                } else {
+                    alarmDayOfWeek = alarmTestDate.get(Calendar.DAY_OF_WEEK) - Calendar.MONDAY;
+                }
                 if (!TimeConverter.isRepeatingEnabled(alarmDays) ||
                         TimeConverter.isDayEnabled(alarmDays, alarmDayOfWeek)) {
 
