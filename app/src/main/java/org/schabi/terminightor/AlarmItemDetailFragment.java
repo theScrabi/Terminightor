@@ -30,6 +30,7 @@ import android.widget.ImageView;
 import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.TimePicker;
+import android.widget.Toast;
 
 import java.util.Arrays;
 
@@ -259,6 +260,7 @@ public class AlarmItemDetailFragment extends Fragment {
         } else {
             AlarmSetupManager.cancelAlarm(getActivity(), alarm.getId());
         }
+        Toast.makeText(getContext(), R.string.alarmSaved, Toast.LENGTH_SHORT).show();
     }
 
     public void restoreItem(long id) {
