@@ -2,6 +2,9 @@ package org.schabi.terminightor;
 
 import android.util.Log;
 
+import java.util.Calendar;
+import java.util.Date;
+
 /**
  * Created by the-scrabi on 07.09.15.
  *
@@ -42,10 +45,6 @@ public class TimeConverter {
         return rawTime % 60;
     }
 
-    public static int getRawTime(int hours, int minutes) {
-        return hours * 60 + minutes;
-    }
-
     public static String toString(int hours, int minutes, boolean use24) {
         hours = use24 ? hours : toTwelfHours(hours);
         return (hours < 10 ? " " + Integer.toString(hours)
@@ -55,22 +54,5 @@ public class TimeConverter {
 
     public static String toString(int rawTime, boolean use24) {
         return toString(getHours(rawTime), getMinutes(rawTime), use24);
-    }
-
-    public static String getAMPMSuffixByRaw(int rawTime, boolean use24) {
-        return getAMPMSuffix(getHours(rawTime), use24);
-    }
-
-    public static String getAMPMSuffix(int hour, boolean use24) {
-        return use24 ? "" :
-                ((hour < 12) ? "AM" : "PM");
-    }
-
-    public static boolean isRepeatingEnabled(int days) {
-        return (days & (1<<7)) >= 1;
-    }
-
-    public static boolean isDayEnabled(int days, int day) {
-        return (days & (1<<day)) >= 1;
     }
 }

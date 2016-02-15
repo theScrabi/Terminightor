@@ -100,9 +100,9 @@ public class NightKillerActivity extends Activity {
                 | WindowManager.LayoutParams.FLAG_TURN_SCREEN_ON);
 
         Bundle a = getIntent().getExtras();
-        alarmId = a.getLong(AlarmSetupManager.ALARM_ID);
-        alarmLabel = a.getString(AlarmSetupManager.ALARM_LABEL);
-        expectedNfcId = a.getByteArray(AlarmSetupManager.ALARM_NFC_ID);
+        alarmId = a.getLong(Alarm.ID);
+        alarmLabel = a.getString(Alarm.NAME);
+        expectedNfcId = a.getByteArray(Alarm.NFC_TAG_ID);
 
         innerWave = (ImageView) findViewById(R.id.inner_wave_alarm);
         outerWave = (ImageView) findViewById(R.id.outer_wave_alarm);

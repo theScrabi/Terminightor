@@ -5,6 +5,7 @@ import android.app.TimePickerDialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.database.Cursor;
 import android.media.Image;
 import android.media.RingtoneManager;
 import android.net.Uri;
@@ -70,13 +71,10 @@ public class AlarmItemDetailFragment extends Fragment {
     private FloatingActionButton addNfcTabButton;
 
     private TimePickerDialog timePickerDialog;
-    private int time = 0;
-    private byte[] tagId = null;
 
     private AlarmDBOpenHelper dbHandler;
-    private long itemId;
-    private boolean isEnabled = false;
-    private String alarmTonePath = "";
+
+    private Alarm alarm;
 
     private boolean use24Hours = false;
 
@@ -100,24 +98,19 @@ public class AlarmItemDetailFragment extends Fragment {
 
         dbHandler = AlarmDBOpenHelper.getAlarmDBOpenHelper(getActivity());
 
-        if (getArguments().containsKey(ARG_ITEM_ID)) {
-            Log.d(TAG, getArguments().getString(ARG_ITEM_ID));
-            try {
-                itemId = Long.parseLong(getArguments().getString(ARG_ITEM_ID));
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
-        } else {
-            Log.e(TAG, "ERROR: no item id given.");
-            getActivity().finish();
-        }
         timePickerDialog = new TimePickerDialog(getActivity(), R.style.AppTheme_Timepicker,
                 new TimePickerDialog.OnTimeSetListener() {
             @Override
             public void onTimeSet(TimePicker view, int hourOfDay, int minute) {
-                setAlarmTimeView.setText(TimeConverter.toString(hourOfDay, minute, use24Hours));
-                setAlarmAMPMView.setText(TimeConverter.getAMPMSuffix(hourOfDay, use24Hours));
-                time = TimeConverter.getRawTime(hourOfDay, minute);
+                try {
+                    alarm.setHour(hourOfDay);
+                    alarm.setMinute(minute);
+                } catch(Exception e) {
+                    e.printStackTrace();
+                }
+                setAlarmTimeView.setText(alarm.getTimeString(use24Hours));
+                setAlarmAMPMView.setText(alarm.getAMPMSuffix(use24Hours));
+
             }
         }, 0, 0, true);
 
@@ -176,9 +169,9 @@ public class AlarmItemDetailFragment extends Fragment {
                 intent.putExtra(RingtoneManager.EXTRA_RINGTONE_SHOW_SILENT, false);
                 intent.putExtra(RingtoneManager.EXTRA_RINGTONE_SHOW_DEFAULT, true);
                 intent.putExtra(RingtoneManager.EXTRA_RINGTONE_TYPE,RingtoneManager.TYPE_ALARM);
-                if(!alarmTonePath.isEmpty()) {
+                if(!alarm.getAlarmTone().isEmpty()) {
                     intent.putExtra(RingtoneManager.EXTRA_RINGTONE_EXISTING_URI,
-                            Uri.parse(alarmTonePath));
+                            Uri.parse(alarm.getAlarmTone()));
                 }
                 startActivityForResult(intent, SET_ALARM_TONE);
             }
@@ -192,7 +185,17 @@ public class AlarmItemDetailFragment extends Fragment {
             }
         });
 
-        restoreItem();
+        if (getArguments().containsKey(ARG_ITEM_ID)) {
+            Log.d(TAG, getArguments().getString(ARG_ITEM_ID));
+            try {
+                restoreItem(Long.parseLong(getArguments().getString(ARG_ITEM_ID)));
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        } else {
+            Log.e(TAG, "ERROR: no item id given.");
+            getActivity().finish();
+        }
     }
 
     @Override
@@ -201,8 +204,9 @@ public class AlarmItemDetailFragment extends Fragment {
         switch(requestCode) {
             case READ_NFC_ID:
                 if (resultCode == SetTagActivity.ID_RECEIVED) {
-                    tagId = data.getByteArrayExtra(SetTagActivity.NFC_ID);
-                    nfcTagIdView.setText(Arrays.toString(tagId));
+                    byte[] nfcTagId = data.getByteArrayExtra(SetTagActivity.NFC_ID);
+                    alarm.setNfcTagId(nfcTagId);
+                    nfcTagIdView.setText(Arrays.toString(nfcTagId));
                     nfcTagLabelView.setVisibility(View.VISIBLE);
                 }
                 break;
@@ -210,11 +214,11 @@ public class AlarmItemDetailFragment extends Fragment {
                 if (data != null) {
                     Uri uri = data.getParcelableExtra(RingtoneManager.EXTRA_RINGTONE_PICKED_URI);
                     if (uri != null) {
-                        alarmTonePath = uri.toString();
+                        alarm.setAlarmTone(uri.toString());
                         setAlarmToneButton.setText(RingtoneManager.getRingtone(getActivity(), uri)
                                 .getTitle(getActivity()));
                     } else {
-                        alarmTonePath = "";
+                        alarm.setAlarmTone("");
                         setAlarmToneButton.setText(getString(R.string.noneAlarmTone));
                     }
                 }
@@ -241,66 +245,56 @@ public class AlarmItemDetailFragment extends Fragment {
 
     public void updateItem() {
         AlarmDBOpenHelper alarmDBOpenHelper = AlarmDBOpenHelper.getAlarmDBOpenHelper(getActivity());
-        if (itemId < 0) {
-            alarmDBOpenHelper.insert(alarmLabelBox.getText().toString(),
-                    isEnabled,
-                    time,
-                    chooseDateView.getEnabledDays(),
-                    alarmTonePath,
-                    vibrateCheckBox.isChecked(),
-                    tagId);
+        alarm.setTerminightorStyledAlarmDays(chooseDateView.getEnabledDays());
+        alarm.setVibrateEnabled(vibrateCheckBox.isChecked());
+        alarm.setName(alarmLabelBox.getText().toString());
+        if (alarm.getId() < 0) {
+            alarmDBOpenHelper.insert(alarm);
         } else {
-            alarmDBOpenHelper.update(itemId,
-                    alarmLabelBox.getText().toString(),
-                    isEnabled,
-                    time,
-                    chooseDateView.getEnabledDays(),
-                    alarmTonePath,
-                    vibrateCheckBox.isChecked(),
-                    tagId);
+            alarmDBOpenHelper.update(alarm);
         }
-        if (isEnabled) {
+        if (alarm.isEnabled()) {
             AlarmSetupManager.cancelAllAlarms(getActivity());
             AlarmSetupManager.readAndSetupAlarms(getActivity());
         } else {
-            AlarmSetupManager.cancelAlarm(getActivity(), itemId);
+            AlarmSetupManager.cancelAlarm(getActivity(), alarm.getId());
         }
     }
 
-    public void restoreItem() {
+    public void restoreItem(long id) {
         Context c = getContext();
         assert c != null;
-        if(itemId >= 0) {
-            AlarmDBOpenHelper alarmDBOpenHelper =
-                    AlarmDBOpenHelper.getAlarmDBOpenHelper(c);
-            time = alarmDBOpenHelper.getAlarmTime(itemId);
-            alarmTonePath = alarmDBOpenHelper.getAlarmTone(itemId);
-            setAlarmTimeView.setText(TimeConverter.toString(time, use24Hours));
-            timePickerDialog.updateTime(TimeConverter.getHours(time),
-                    TimeConverter.getMinutes(time));
-            setAlarmAMPMView.setText(TimeConverter.getAMPMSuffixByRaw(time, use24Hours));
-            chooseDateView.setEnabledDays(alarmDBOpenHelper.getAlarmDays(itemId));
+        if(id>= 0) {
+            try {
+                alarm = Alarm.getFromCursorItem(
+                        AlarmDBOpenHelper.getAlarmDBOpenHelper(c).getReadableItem(id));
+            } catch(Exception e) {
+                e.printStackTrace();
+            }
+
+            setAlarmTimeView.setText(alarm.getTimeString(use24Hours));
+            timePickerDialog.updateTime(alarm.getHour(), alarm.getMinute());
+            setAlarmAMPMView.setText(alarm.getAMPMSuffix(use24Hours));
+            chooseDateView.setEnabledDays(alarm.getTerminightorStyledAlarmDays());
             repeatCheckBox.setChecked(chooseDateView.isRepeatEnabled());
             if (repeatCheckBox.isChecked()) {
                 chooseDateView.setVisibility(View.VISIBLE);
             }
-            alarmLabelBox.setText(alarmDBOpenHelper.getName(itemId));
+            alarmLabelBox.setText(alarm.getName());
             setAlarmToneButton.setText(RingtoneManager
-                    .getRingtone(c, Uri.parse(alarmTonePath)).getTitle(c));
-            vibrateCheckBox.setChecked(alarmDBOpenHelper.isVibrateEnabled(itemId));
-            isEnabled = alarmDBOpenHelper.isAlarmEnabled(itemId);
-            tagId = alarmDBOpenHelper.getNfcTagId(itemId);
-            if (tagId.length != 0) {
+                    .getRingtone(c, Uri.parse(alarm.getAlarmTone())).getTitle(c));
+            vibrateCheckBox.setChecked(alarm.isVibrate());
+            if (alarm.getNfcTagId().length != 0) {
                 nfcTagLabelView.setVisibility(View.VISIBLE);
-                nfcTagIdView.setText(Arrays.toString(tagId));
+                nfcTagIdView.setText(Arrays.toString(alarm.getNfcTagId()));
             }
         } else {
+            alarm = new Alarm();
             repeatCheckBox.setChecked(false);
-            isEnabled = true;
             setAlarmTimeView.setText("--:--");
             setAlarmAMPMView.setText("");
             Uri alarmToneUri = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_ALARM);
-            alarmTonePath = alarmToneUri.toString();
+            alarm.setAlarmTone(alarmToneUri.toString());
             try {
                 setAlarmToneButton.setText(RingtoneManager.getRingtone(c, alarmToneUri)
                         .getTitle(c));
@@ -331,43 +325,16 @@ public class AlarmItemDetailFragment extends Fragment {
     }
 
     private void leaveAndDelete() {
-        if(itemId >= 0) {
-            dbHandler.delete(itemId);
-            AlarmSetupManager.cancelAlarm(getActivity(), itemId);
+        if(alarm.getId() >= 0) {
+            dbHandler.delete(alarm.getId());
+            AlarmSetupManager.cancelAlarm(getActivity(), alarm.getId());
         }
         if(getActivity().getClass() == AlarmItemDetailActivity.class) {
             getActivity().finish();
         }
     }
 
-    private int getTimeBySpinnerSelection(int selection) {
-        switch(selection)  {
-            case 0: return 0;
-            case 1: return 2;
-            case 2: return 5;
-            case 3: return 15;
-            case 4: return 30;
-            default:
-                Log.e(TAG, "You unlocked a secret mushroom.");
-        }
-        return -1;
-    }
-
-    private int getSpinnerSelectionByTime(int time) {
-        switch(time) {
-            case 0: return 0;
-            case 2: return 1;
-            case 5: return 2;
-            case 15: return 3;
-            case 30: return 4;
-            default:
-                Log.e(TAG, "This is a dead end. Go back and try another door: " +
-                        Integer.toString(time));
-        }
-        return 0;
-    }
-
     public boolean hasTag() {
-        return tagId != null;
+        return alarm.hasTag();
     }
 }

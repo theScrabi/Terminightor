@@ -49,29 +49,20 @@ public class AlarmDBOpenHelper extends SQLiteOpenHelper {
     public static final String DB_NAME = "alarm.db";
     public static final int DB_VERSION = 1;
 
-    // keys
-    public static final String _ID = "_id";
-    public static final String NAME = "name";
-    public static final String ALARM_ENABLED = "alarm_enabled";
-    public static final String ALARM_TIME = "alarm_time";
-    public static final String ALARM_DAYS = "alarm_days";
-    public static final String ALARM_TONE = "alarm_tone";
-    public static final String VIBRATE = "vibrate";
-    public static final String NFC_TAG_ID = "nfc_tag_id";
-
     // table
     public static final String ALARM_TABLE = "alarm";
     public static final String ALARM_TABLE_CREATE = "CREATE TABLE " + ALARM_TABLE
-            + " (" + _ID + " INTEGER PRIMARY KEY AUTOINCREMENT, "
-            + NAME + " TEXT,"
-            + ALARM_ENABLED + " INTEGER,"
-            + ALARM_TIME + " INTEGER,"
-            + ALARM_DAYS + " INTEGER,"
-            + ALARM_TONE + " TEXT,"
-            + VIBRATE + " INTEGER,"
-            + NFC_TAG_ID + " BLOB);";
+            + " (" + Alarm.ID + " INTEGER PRIMARY KEY AUTOINCREMENT, "
+            + Alarm.NAME + " TEXT,"
+            + Alarm.ALARM_ENABLED + " INTEGER,"
+            + Alarm.ALARM_TIME + " INTEGER,"
+            + Alarm.ALARM_DAYS + " INTEGER,"
+            + Alarm.ALARM_TONE + " TEXT,"
+            + Alarm.VIBRATE + " INTEGER,"
+            + Alarm.NFC_TAG_ID + " BLOB);";
     public static final String ALARM_TABLE_DROP = "DROP TABLE IF EXISTS " + ALARM_TABLE + ";";
 
+    /*
     // day flags
     public static int ENABLE_REPEAT = (1<<7);
     public static int MONDAY = 1;
@@ -81,6 +72,7 @@ public class AlarmDBOpenHelper extends SQLiteOpenHelper {
     public static int FRIDAY = (1<<4);
     public static int SATURDAY = (1<<5);
     public static int SUNDAY = (1<<6);
+    */
 
     public AlarmDBOpenHelper(Context context) {
         super(context, DB_NAME, null, DB_VERSION);
@@ -110,13 +102,24 @@ public class AlarmDBOpenHelper extends SQLiteOpenHelper {
         try {
             SQLiteDatabase db = getWritableDatabase();
             ContentValues values = new ContentValues();
-            values.put(NAME, name);
-            values.put(ALARM_ENABLED, alarmEnabled ? 1 : 0);
-            values.put(ALARM_TIME, alarmTime);
-            values.put(ALARM_DAYS, alarmDays);
-            values.put(ALARM_TONE, alarmTone);
-            values.put(VIBRATE, vibrate ? 1 : 0);
-            values.put(NFC_TAG_ID, nfcTag);
+            values.put(Alarm.NAME, name);
+            values.put(Alarm.ALARM_ENABLED, alarmEnabled ? 1 : 0);
+            values.put(Alarm.ALARM_TIME, alarmTime);
+            values.put(Alarm.ALARM_DAYS, alarmDays);
+            values.put(Alarm.ALARM_TONE, alarmTone);
+            values.put(Alarm.VIBRATE, vibrate ? 1 : 0);
+            values.put(Alarm.NFC_TAG_ID, nfcTag);
+            return db.insert(ALARM_TABLE, null, values);
+        } catch (Exception e) {
+            e.printStackTrace();
+            return -1;
+        }
+    }
+
+    public long insert(Alarm alarm) {
+        try {
+            SQLiteDatabase db = getWritableDatabase();
+            ContentValues values = alarm.getContentValues();
             return db.insert(ALARM_TABLE, null, values);
         } catch (Exception e) {
             e.printStackTrace();
@@ -129,14 +132,24 @@ public class AlarmDBOpenHelper extends SQLiteOpenHelper {
         try {
             SQLiteDatabase db = getWritableDatabase();
             ContentValues values = new ContentValues();
-            values.put(NAME, name);
-            values.put(ALARM_ENABLED, alarmEnabled ? 1 : 0);
-            values.put(ALARM_TIME, alarmTime);
-            values.put(ALARM_DAYS, alarmDays);
-            values.put(ALARM_TONE, alarmTone);
-            values.put(VIBRATE, vibrate ? 1 : 0);
-            values.put(NFC_TAG_ID, nfcTagId);
+            values.put(Alarm.NAME, name);
+            values.put(Alarm.ALARM_ENABLED, alarmEnabled ? 1 : 0);
+            values.put(Alarm.ALARM_TIME, alarmTime);
+            values.put(Alarm.ALARM_DAYS, alarmDays);
+            values.put(Alarm.ALARM_TONE, alarmTone);
+            values.put(Alarm.VIBRATE, vibrate ? 1 : 0);
+            values.put(Alarm.NFC_TAG_ID, nfcTagId);
             db.update(ALARM_TABLE, values, "_id = ?", new String[]{Long.toString(id)});
+        } catch(Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    public void update(Alarm alarm) {
+        try {
+            SQLiteDatabase db = getWritableDatabase();
+            ContentValues values = alarm.getContentValues();
+            db.update(ALARM_TABLE, values, "_id = ?", new String[]{Long.toString(alarm.getId())});
         } catch(Exception e) {
             e.printStackTrace();
         }
@@ -146,7 +159,7 @@ public class AlarmDBOpenHelper extends SQLiteOpenHelper {
         try {
             SQLiteDatabase db = getWritableDatabase();
             ContentValues values = new ContentValues();
-            values.put(ALARM_ENABLED, enabled ? 1 : 0);
+            values.put(Alarm.ALARM_ENABLED, enabled ? 1 : 0);
             db.update(ALARM_TABLE, values, "_id = ?", new String[]{Long.toString(id)});
         }catch (Exception e) {
             e.printStackTrace();
@@ -169,6 +182,14 @@ public class AlarmDBOpenHelper extends SQLiteOpenHelper {
         return cursor;
     }
 
+    public Cursor getReadableItem(long id) {
+        Cursor cursor = getReadableDatabase()
+                .query(ALARM_TABLE, null, "_id = ?", new String[]{Long.toString(id)},
+                        null, null, null, null);
+        cursor.moveToFirst();
+        return cursor;
+    }
+
     public Cursor getValueOf(long id, String column) {
         Cursor cursor = getReadableDatabase()
                 .query(ALARM_TABLE, new String[]{column}, "_id = ?", new String[]{Long.toString(id)},
@@ -178,31 +199,31 @@ public class AlarmDBOpenHelper extends SQLiteOpenHelper {
     }
 
     public String getName(long id) {
-        return getValueOf(id, NAME).getString(0);
+        return getValueOf(id, Alarm.NAME).getString(0);
     }
 
     public boolean isAlarmEnabled(long id) {
-        return getValueOf(id, ALARM_ENABLED).getInt(0) == 1;
+        return getValueOf(id, Alarm.ALARM_ENABLED).getInt(0) == 1;
     }
 
     public int getAlarmTime(long id) {
-        return getValueOf(id, ALARM_TIME).getInt(0);
+        return getValueOf(id, Alarm.ALARM_TIME).getInt(0);
     }
 
     public int getAlarmDays(long id) {
-        return getValueOf(id, ALARM_DAYS).getInt(0);
+        return getValueOf(id, Alarm.ALARM_DAYS).getInt(0);
     }
 
     public String getAlarmTone(long id) {
-        return getValueOf(id, ALARM_TONE).getString(0);
+        return getValueOf(id, Alarm.ALARM_TONE).getString(0);
     }
 
     public boolean isVibrateEnabled(long id) {
-        return getValueOf(id, VIBRATE).getInt(0) == 1;
+        return getValueOf(id, Alarm.VIBRATE).getInt(0) == 1;
     }
 
     public byte[] getNfcTagId(long id) {
-        return getValueOf(id, NFC_TAG_ID).getBlob(0);
+        return getValueOf(id, Alarm.NFC_TAG_ID).getBlob(0);
     }
 
     public void delete(long id) {
@@ -212,14 +233,14 @@ public class AlarmDBOpenHelper extends SQLiteOpenHelper {
 
     public static Index getIndex(Cursor cursor) {
         Index index = new Index();
-        index.ciId = cursor.getColumnIndex(AlarmDBOpenHelper._ID);
-        index.ciName = cursor.getColumnIndex(AlarmDBOpenHelper.NAME);
-        index.ciAlarmEnabled = cursor.getColumnIndex(AlarmDBOpenHelper.ALARM_ENABLED);
-        index.ciAlarmTime = cursor.getColumnIndex(AlarmDBOpenHelper.ALARM_TIME);
-        index.ciEnabledDays = cursor.getColumnIndex(AlarmDBOpenHelper.ALARM_DAYS);
-        index.ciAlarmTone = cursor.getColumnIndex(AlarmDBOpenHelper.ALARM_TONE);
-        index.ciVibrate = cursor.getColumnIndex(AlarmDBOpenHelper.VIBRATE);
-        index.ciAlarmNfcId = cursor.getColumnIndex(AlarmDBOpenHelper.NFC_TAG_ID);
+        index.ciId = cursor.getColumnIndex(Alarm.ID);
+        index.ciName = cursor.getColumnIndex(Alarm.NAME);
+        index.ciAlarmEnabled = cursor.getColumnIndex(Alarm.ALARM_ENABLED);
+        index.ciAlarmTime = cursor.getColumnIndex(Alarm.ALARM_TIME);
+        index.ciEnabledDays = cursor.getColumnIndex(Alarm.ALARM_DAYS);
+        index.ciAlarmTone = cursor.getColumnIndex(Alarm.ALARM_TONE);
+        index.ciVibrate = cursor.getColumnIndex(Alarm.VIBRATE);
+        index.ciAlarmNfcId = cursor.getColumnIndex(Alarm.NFC_TAG_ID);
         return index;
     }
 }

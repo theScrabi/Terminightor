@@ -9,6 +9,7 @@ import android.database.Cursor;
 import android.os.Build;
 import android.util.Log;
 
+import java.sql.Time;
 import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Random;
@@ -39,12 +40,13 @@ public class AlarmSetupManager extends BroadcastReceiver {
             "org.schabi.Terminightor.AlarmSetupManager.ACTION_RENEW_ALARMS";
 
     private static final String TAG = AlarmSetupManager.class.toString();
+    /*
     public static final String ALARM_ID = "alarm_id";
     public static final String ALARM_LABEL = "alarm_label";
     public static final String ALARM_NFC_ID = "alarm_nfc_id";
     public static final String ALARM_REPEAT = "alarm_repeat";
     public static final String ALARM_TONE= "alarm_tone";
-    public static final String ALARM_VIBRATE = "alarm_vibrate";
+    public static final String ALARM_VIBRATE = "alarm_vibrate"; */
 
     @Override
     public void onReceive(Context context, Intent intent) {
@@ -72,10 +74,9 @@ public class AlarmSetupManager extends BroadcastReceiver {
         setupAlarmsByCursor(context, db.getValueOf(id));
     }
 
+    // initalize all alarms
     private static void setupAlarmsByCursor(Context context, Cursor cursor) {
         cursor.moveToFirst();
-
-        AlarmDBOpenHelper.Index index = AlarmDBOpenHelper.getIndex(cursor);
 
         Calendar now = Calendar.getInstance();
         Calendar midnightToday = Calendar.getInstance();
@@ -96,48 +97,38 @@ public class AlarmSetupManager extends BroadcastReceiver {
         AlarmManager alarmManager = (AlarmManager) context.getSystemService(Context.ALARM_SERVICE);
 
         while(!cursor.isAfterLast()) {
-            if(cursor.getInt(index.ciAlarmEnabled) >= 1) {
-                int alarmTimeMin = cursor.getInt(index.ciAlarmTime);
+            Alarm alarm = null;
+            try {
+                alarm = Alarm.getFromCursorItem(cursor);
+            } catch(Exception e) {
+                e.printStackTrace();
+            }
+
+            if(alarm.isEnabled()) {
                 long alarmDate = midnightToday.getTimeInMillis()
-                        + (alarmTimeMin * 60 * 1000);
+                        + alarm.getAlarmTimeInMillis();
 
                 // If alarm has already gone off today, set it up for tomorrow.
                 // So all alarms between now and the 24 hours till the next
                 // alarm initialization are covered.
                 if (alarmDate < now.getTimeInMillis()) {
                     alarmDate = midnightTomorrow.getTimeInMillis()
-                            + (alarmTimeMin * 60 * 1000);
+                            + alarm.getAlarmTimeInMillis();
                 }
 
                 // check if alarm is allowed to trigger on this day
                 // if repeating is disabled, let it through once, and
                 // that disable the alarm once and for all
-                int alarmDays = cursor.getInt(index.ciEnabledDays);
+
                 Calendar alarmTestDate = Calendar.getInstance();
                 alarmTestDate.setTimeInMillis(alarmDate);
-                // subtract MONDAY, since the week of Calendar begins with day 2
-                // but we need monday being 0.
-                int alarmDayOfWeek;
-                if(alarmTestDate.get(Calendar.DAY_OF_WEEK) == Calendar.SUNDAY) {
-                    // we need to make sunday extra, since java is counting different to terminightor.
-                    alarmDayOfWeek = 6;
-                } else {
-                    alarmDayOfWeek = alarmTestDate.get(Calendar.DAY_OF_WEEK) - Calendar.MONDAY;
-                }
-                if (!TimeConverter.isRepeatingEnabled(alarmDays) ||
-                        TimeConverter.isDayEnabled(alarmDays, alarmDayOfWeek)) {
 
-                    Intent alarmIntent = new Intent(NightKillerReceiver.ACTION_FIRE_ALARM);
-                    alarmIntent.putExtra(ALARM_ID, cursor.getLong(index.ciId));
-                    alarmIntent.putExtra(ALARM_LABEL, cursor.getString(index.ciName));
-                    alarmIntent.putExtra(ALARM_NFC_ID, cursor.getBlob(index.ciAlarmNfcId));
-                    alarmIntent.putExtra(ALARM_REPEAT, TimeConverter.isRepeatingEnabled(alarmDays));
-                    alarmIntent.putExtra(ALARM_TONE, cursor.getString(index.ciAlarmTone));
-                    alarmIntent.putExtra(ALARM_VIBRATE, cursor.getInt(index.ciVibrate) == 1);
+                if (!alarm.isRepeatEnabled()
+                        || alarm.isDayEnabled(alarmTestDate.get(Calendar.DAY_OF_WEEK))) {
+
                     PendingIntent alarmPendingIntent =
-                            PendingIntent.getBroadcast(context, cursor.getInt(index.ciId),
-                                    alarmIntent, PendingIntent.FLAG_CANCEL_CURRENT);
-
+                            PendingIntent.getBroadcast(context, (int)alarm.getId(),
+                                    alarm.getAlarmIntent(), PendingIntent.FLAG_CANCEL_CURRENT);
 
                     if (Build.VERSION.SDK_INT >= 19) {
                         alarmManager.setExact(AlarmManager.RTC_WAKEUP,
@@ -163,12 +154,12 @@ public class AlarmSetupManager extends BroadcastReceiver {
         long alarmDate = ad.getTimeInMillis();
 
         Intent alarmIntent = new Intent(NightKillerReceiver.ACTION_FIRE_ALARM);
-        alarmIntent.putExtra(ALARM_ID, 42l);
-        alarmIntent.putExtra(ALARM_LABEL, "debug alarm");
-        alarmIntent.putExtra(ALARM_NFC_ID, new byte[]{-21, 54, 63, 124});
-        alarmIntent.putExtra(ALARM_REPEAT, false);
-        alarmIntent.putExtra(ALARM_TONE, "content://media/internal/audio/media/10");
-        alarmIntent.putExtra(ALARM_VIBRATE, true);
+        alarmIntent.putExtra(Alarm.ID, 42l);
+        alarmIntent.putExtra(Alarm.NAME, "debug alarm");
+        alarmIntent.putExtra(Alarm.NFC_TAG_ID, new byte[]{-21, 54, 63, 124});
+        alarmIntent.putExtra(Alarm.ALARM_REPEAT, false);
+        alarmIntent.putExtra(Alarm.ALARM_TONE, "content://media/internal/audio/media/10");
+        alarmIntent.putExtra(Alarm.VIBRATE, true);
         PendingIntent alarmPendingIntent = PendingIntent.getBroadcast(
                 context, 42, alarmIntent, PendingIntent.FLAG_CANCEL_CURRENT);
 

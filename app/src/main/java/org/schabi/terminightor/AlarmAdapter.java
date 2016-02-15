@@ -44,12 +44,14 @@ public class AlarmAdapter extends CursorAdapter {
 
     @Override
     public void bindView(View view, final Context context, Cursor cursor) {
-        final int ciId = cursor.getColumnIndex(AlarmDBOpenHelper._ID);
-        final int ciName = cursor.getColumnIndex(AlarmDBOpenHelper.NAME);
-        final int ciAlarmTime = cursor.getColumnIndex(AlarmDBOpenHelper.ALARM_TIME);
-        final int ciAlarmEnabled = cursor.getColumnIndex(AlarmDBOpenHelper.ALARM_ENABLED);
+        Alarm alarm = null;
+        try {
+            alarm = Alarm.getFromCursorItem(cursor);
+        } catch(Exception e) {
+            e.printStackTrace();
+        }
 
-        final int id = cursor.getInt(ciId);
+        final int id = (int) alarm.getId();
         TextView alarmLabel = (TextView) view.findViewById(R.id.alarmLabel);
         TextView alarmTime = (TextView) view.findViewById(R.id.alarmTimeLabel);
         TextView amPmSuffix = (TextView) view.findViewById(R.id.amPmSuffix);
@@ -67,11 +69,10 @@ public class AlarmAdapter extends CursorAdapter {
             }
         });
 
-        alarmLabel.setText(cursor.getString(ciName));
-        int rawTime = cursor.getInt(ciAlarmTime);
-        alarmTime.setText(TimeConverter.toString(rawTime, use24Hours));
-        amPmSuffix.setText(TimeConverter.getAMPMSuffixByRaw(rawTime, use24Hours));
-        enabledSwitch.setChecked(cursor.getInt(ciAlarmEnabled) >= 1);
+        alarmLabel.setText(alarm.getName());
+        alarmTime.setText(alarm.getTimeString(use24Hours));
+        amPmSuffix.setText(alarm.getAMPMSuffix(use24Hours));
+        enabledSwitch.setChecked(alarm.isEnabled());
     }
 
     @Override

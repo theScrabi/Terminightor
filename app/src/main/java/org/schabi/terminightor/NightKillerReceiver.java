@@ -35,8 +35,12 @@ public class NightKillerReceiver extends BroadcastReceiver {
         if(intent.getAction().equals(ACTION_FIRE_ALARM)) {
 
             Log.d(TAG, "Gonna kill your night");
+            Intent alarmServiceIntent = intent;
+            intent.setClass(context, NightKillerService.class);
+            /*
             Intent alarmServiceIntent = new Intent(context, NightKillerService.class);
-            alarmServiceIntent.putExtra(AlarmSetupManager.ALARM_ID,
+
+            alarmServiceIntent.putExtra(Alarm.ID,
                     intent.getLongExtra(AlarmSetupManager.ALARM_ID, -1));
             alarmServiceIntent.putExtra(AlarmSetupManager.ALARM_LABEL,
                     intent.getStringExtra(AlarmSetupManager.ALARM_LABEL));
@@ -46,11 +50,20 @@ public class NightKillerReceiver extends BroadcastReceiver {
                     intent.getStringExtra(AlarmSetupManager.ALARM_TONE));
             alarmServiceIntent.putExtra(AlarmSetupManager.ALARM_VIBRATE,
                     intent.getBooleanExtra(AlarmSetupManager.ALARM_VIBRATE, false));
+                    */
             context.startService(alarmServiceIntent);
 
-            if(!intent.getBooleanExtra(AlarmSetupManager.ALARM_REPEAT, false)) {
-                AlarmDBOpenHelper.getAlarmDBOpenHelper(context).setAlarmEnabled(
-                        intent.getLongExtra(AlarmSetupManager.ALARM_ID, -1), false);
+            if(!intent.getBooleanExtra(Alarm.ALARM_REPEAT, false)) {
+                long id = intent.getLongExtra(Alarm.ID, -1);
+                Alarm alarm = null;
+                try {
+                    alarm = Alarm.getFromCursorItem(AlarmDBOpenHelper.
+                            getAlarmDBOpenHelper(context).getReadableItem(id));
+                } catch(Exception e) {
+                    e.printStackTrace();
+                }
+                alarm.setEnabled(false);
+                AlarmDBOpenHelper.getAlarmDBOpenHelper(context).update(alarm);
             }
         }
     }

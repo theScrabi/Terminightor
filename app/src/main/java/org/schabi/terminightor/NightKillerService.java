@@ -102,11 +102,11 @@ public class NightKillerService extends Service {
 
         if (intent != null) {
             Log.d(TAG, "get data from intent");
-            alarmId = intent.getLongExtra(AlarmSetupManager.ALARM_ID, -1);
-            alarmLabel = intent.getStringExtra(AlarmSetupManager.ALARM_LABEL);
-            expectedNfcId = intent.getByteArrayExtra(AlarmSetupManager.ALARM_NFC_ID);
-            alarmTonePath = intent.getStringExtra(AlarmSetupManager.ALARM_TONE);
-            vibrateEnabled = intent.getBooleanExtra(AlarmSetupManager.ALARM_VIBRATE, false);
+            alarmId = intent.getLongExtra(Alarm.ID, -1);
+            alarmLabel = intent.getStringExtra(Alarm.NAME);
+            expectedNfcId = intent.getByteArrayExtra(Alarm.NFC_TAG_ID);
+            alarmTonePath = intent.getStringExtra(Alarm.ALARM_TONE);
+            vibrateEnabled = intent.getBooleanExtra(Alarm.VIBRATE, false);
             indicator.saveAlarm(alarmId, alarmLabel, expectedNfcId, alarmTonePath, vibrateEnabled);
         } else {
             Log.d(TAG, "get data from indicator");
@@ -131,9 +131,9 @@ public class NightKillerService extends Service {
                 Intent.FLAG_ACTIVITY_NEW_TASK |
                         Intent.FLAG_ACTIVITY_EXCLUDE_FROM_RECENTS |
                         Intent.FLAG_FROM_BACKGROUND);
-        alarmActivityIntent.putExtra(AlarmSetupManager.ALARM_ID, alarmId);
-        alarmActivityIntent.putExtra(AlarmSetupManager.ALARM_LABEL, alarmLabel);
-        alarmActivityIntent.putExtra(AlarmSetupManager.ALARM_NFC_ID, expectedNfcId);
+        alarmActivityIntent.putExtra(Alarm.ID, alarmId);
+        alarmActivityIntent.putExtra(Alarm.NAME, alarmLabel);
+        alarmActivityIntent.putExtra(Alarm.NFC_TAG_ID, expectedNfcId);
         this.startActivity(alarmActivityIntent);
 
         NotificationManager nm = (NotificationManager) getSystemService(NOTIFICATION_SERVICE);
@@ -167,11 +167,11 @@ public class NightKillerService extends Service {
             indicator.removeIndicator();
         } else {
             Intent restartIntent = new Intent(this, NightKillerService.class);
-            restartIntent.putExtra(AlarmSetupManager.ALARM_ID, alarmId);
-            restartIntent.putExtra(AlarmSetupManager.ALARM_LABEL, alarmLabel);
-            restartIntent.putExtra(AlarmSetupManager.ALARM_NFC_ID, expectedNfcId);
-            restartIntent.putExtra(AlarmSetupManager.ALARM_TONE, alarmTonePath);
-            restartIntent.putExtra(AlarmSetupManager.ALARM_VIBRATE, vibrateEnabled);
+            restartIntent.putExtra(Alarm.ID, alarmId);
+            restartIntent.putExtra(Alarm.NAME, alarmLabel);
+            restartIntent.putExtra(Alarm.NFC_TAG_ID, expectedNfcId);
+            restartIntent.putExtra(Alarm.ALARM_TONE, alarmTonePath);
+            restartIntent.putExtra(Alarm.VIBRATE, vibrateEnabled);
             startService(restartIntent);
         }
     }
