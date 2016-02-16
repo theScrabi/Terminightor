@@ -143,11 +143,6 @@ public class Alarm {
     public Intent getAlarmIntent() {
         Intent intent = new Intent(NightKillerReceiver.ACTION_FIRE_ALARM);
         intent.putExtra(ID, id);
-        intent.putExtra(NAME, name);
-        intent.putExtra(NFC_TAG_ID, nfcTagId);
-        intent.putExtra(ALARM_REPEAT, repeatEnabled);
-        intent.putExtra(ALARM_TONE, alarmTone);
-        intent.putExtra(VIBRATE, vibrate);
         return intent;
     }
 
@@ -213,6 +208,59 @@ public class Alarm {
         return (hour < 10 ? " " + Integer.toString(hour)
                 : Integer.toString(hour))
                 + ":" + (alarmMinute < 10 ? "0" + Integer.toString(alarmMinute) : Integer.toString(alarmMinute));
+    }
+
+    public Calendar getNextAlarmDate() {
+        if(isEnabled()) {
+            final Calendar now = Calendar.getInstance();
+            Calendar nextAlarm = Calendar.getInstance();
+            Calendar midnightToday = now;
+            midnightToday.set(Calendar.HOUR, 0);
+            midnightToday.set(Calendar.AM_PM, 0);
+            midnightToday.set(Calendar.MINUTE, 0);
+            midnightToday.set(Calendar.HOUR_OF_DAY, 0);
+            midnightToday.set(Calendar.SECOND, 0);
+            midnightToday.set(Calendar.MILLISECOND, 0);
+
+            if(isRepeatEnabled()) {
+                Calendar helperTime = midnightToday;
+
+                helperTime.add(Calendar.HOUR_OF_DAY, alarmHour);
+                helperTime.add(Calendar.MINUTE, alarmMinute);
+                if(isDayEnabled(midnightToday.get(Calendar.DAY_OF_WEEK))
+                    && helperTime.after(now)) {
+                    // if alarm is set for today and did not yet fire, we can set it up
+                    // for today else we set it of for the same day of the week, but next week.
+                    nextAlarm = helperTime;
+                    return nextAlarm;
+                } else {
+                    // weird for loop ist meant like this:
+                    // look for the first alarm between tomorrow and today next week.
+                    // tomorrow is +1 today next week is +7
+                    // today was already tested by the if clause above
+                    for(int daysFromNow = 1; daysFromNow <= 7; daysFromNow++) {
+                        helperTime = midnightToday;
+                        helperTime.add(Calendar.DAY_OF_MONTH, daysFromNow);
+                        if(isDayEnabled(helperTime.get(Calendar.DAY_OF_WEEK))) {
+                            helperTime.add(Calendar.HOUR_OF_DAY, alarmHour);
+                            helperTime.add(Calendar.MINUTE, alarmMinute);
+                            nextAlarm = helperTime;
+                            return nextAlarm;
+                        }
+                    }
+                }
+            } else {
+                nextAlarm = midnightToday;
+                nextAlarm.add(Calendar.HOUR_OF_DAY, alarmHour);
+                nextAlarm.add(Calendar.MINUTE, alarmMinute);
+                if(nextAlarm.before(now)) {
+                    nextAlarm.add(Calendar.DAY_OF_MONTH, 1);
+                }
+            }
+            return nextAlarm;
+        } else {
+            return null;
+        }
     }
 
     public boolean hasTag() {

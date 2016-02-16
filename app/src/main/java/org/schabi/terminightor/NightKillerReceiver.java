@@ -37,34 +37,10 @@ public class NightKillerReceiver extends BroadcastReceiver {
             Log.d(TAG, "Gonna kill your night");
             Intent alarmServiceIntent = intent;
             intent.setClass(context, NightKillerService.class);
-            /*
-            Intent alarmServiceIntent = new Intent(context, NightKillerService.class);
 
-            alarmServiceIntent.putExtra(Alarm.ID,
-                    intent.getLongExtra(AlarmSetupManager.ALARM_ID, -1));
-            alarmServiceIntent.putExtra(AlarmSetupManager.ALARM_LABEL,
-                    intent.getStringExtra(AlarmSetupManager.ALARM_LABEL));
-            alarmServiceIntent.putExtra(AlarmSetupManager.ALARM_NFC_ID,
-                    intent.getByteArrayExtra(AlarmSetupManager.ALARM_NFC_ID));
-            alarmServiceIntent.putExtra(AlarmSetupManager.ALARM_TONE,
-                    intent.getStringExtra(AlarmSetupManager.ALARM_TONE));
-            alarmServiceIntent.putExtra(AlarmSetupManager.ALARM_VIBRATE,
-                    intent.getBooleanExtra(AlarmSetupManager.ALARM_VIBRATE, false));
-                    */
             context.startService(alarmServiceIntent);
 
-            if(!intent.getBooleanExtra(Alarm.ALARM_REPEAT, false)) {
-                long id = intent.getLongExtra(Alarm.ID, -1);
-                Alarm alarm = null;
-                try {
-                    alarm = Alarm.getFromCursorItem(AlarmDBOpenHelper.
-                            getAlarmDBOpenHelper(context).getReadableItem(id));
-                } catch(Exception e) {
-                    e.printStackTrace();
-                }
-                alarm.setEnabled(false);
-                AlarmDBOpenHelper.getAlarmDBOpenHelper(context).update(alarm);
-            }
+
         }
     }
 }

@@ -52,12 +52,8 @@ public class NightKillerService extends Service {
     Vibrator vibrator = null;
     boolean gotDisabled = false;
 
-    private long alarmId = -1;
-    private String alarmLabel = "";
-    private byte[] expectedNfcId = null;
+    Alarm alarm;
     AlarmIndicator indicator = new AlarmIndicator(this);
-    private String alarmTonePath = "";
-    private boolean vibrateEnabled = false;
 
     NotificationManager nm;
 
@@ -72,7 +68,7 @@ public class NightKillerService extends Service {
                 } catch (Exception e) {
                     e.printStackTrace();
                 }
-                if(vibrateEnabled) {
+                if(alarm.isVibrate()) {
                     vibrator.cancel();
                 }
                 gotDisabled = true;
@@ -102,44 +98,51 @@ public class NightKillerService extends Service {
 
         if (intent != null) {
             Log.d(TAG, "get data from intent");
-            alarmId = intent.getLongExtra(Alarm.ID, -1);
-            alarmLabel = intent.getStringExtra(Alarm.NAME);
-            expectedNfcId = intent.getByteArrayExtra(Alarm.NFC_TAG_ID);
-            alarmTonePath = intent.getStringExtra(Alarm.ALARM_TONE);
-            vibrateEnabled = intent.getBooleanExtra(Alarm.VIBRATE, false);
-            indicator.saveAlarm(alarmId, alarmLabel, expectedNfcId, alarmTonePath, vibrateEnabled);
+            try {
+                alarm = Alarm.getFromCursorItem(AlarmDBOpenHelper.getAlarmDBOpenHelper(this).getReadableItem(
+                        intent.getLongExtra(Alarm.ID, -1)));
+            } catch(Exception e) {
+                e.printStackTrace();
+            }
+
+            if(!alarm.isRepeatEnabled()) {
+                alarm.setEnabled(false);
+                AlarmDBOpenHelper.getAlarmDBOpenHelper(this).update(alarm);
+            }
+
+
+            indicator.saveAlarm(alarm);
         } else {
             Log.d(TAG, "get data from indicator");
-            indicator.restoreAlarm();
-            alarmId = indicator.getId();
-            alarmLabel = indicator.getLabel();
-            expectedNfcId = indicator.getNfcId();
-            alarmTonePath = indicator.getAlarmTone();
-            vibrateEnabled = indicator.isVibrateEnabled();
+            try {
+                alarm = indicator.restoreAlarm(this);
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
         }
 
         vibrator = (Vibrator) getSystemService(Context.VIBRATOR_SERVICE);
         long[] pattern = {1000, 200, 200, 200};
-        if (vibrateEnabled) {
+        if (alarm.isVibrate()) {
             vibrator.vibrate(pattern, 0);
         }
 
-        mediaPlayer = setupNewMediaPlayer();
+        mediaPlayer = setupNewMediaPlayer(alarm);
         mediaPlayer.start();
 
         alarmActivityIntent.setFlags(
                 Intent.FLAG_ACTIVITY_NEW_TASK |
                         Intent.FLAG_ACTIVITY_EXCLUDE_FROM_RECENTS |
                         Intent.FLAG_FROM_BACKGROUND);
-        alarmActivityIntent.putExtra(Alarm.ID, alarmId);
-        alarmActivityIntent.putExtra(Alarm.NAME, alarmLabel);
-        alarmActivityIntent.putExtra(Alarm.NFC_TAG_ID, expectedNfcId);
+        alarmActivityIntent.putExtra(Alarm.ID, alarm.getId());
+        alarmActivityIntent.putExtra(Alarm.NAME, alarm.getName());
+        alarmActivityIntent.putExtra(Alarm.NFC_TAG_ID, alarm.getNfcTagId());
         this.startActivity(alarmActivityIntent);
 
         NotificationManager nm = (NotificationManager) getSystemService(NOTIFICATION_SERVICE);
         Notification n = new NotificationCompat.Builder(this)
                 .setContentTitle(getString(R.string.alarm))
-                .setContentText(alarmLabel)
+                .setContentText(alarm.getName())
                 .setSmallIcon(R.drawable.terminightor_notify_small)
                 .setOngoing(true)
                 .build();
@@ -167,11 +170,7 @@ public class NightKillerService extends Service {
             indicator.removeIndicator();
         } else {
             Intent restartIntent = new Intent(this, NightKillerService.class);
-            restartIntent.putExtra(Alarm.ID, alarmId);
-            restartIntent.putExtra(Alarm.NAME, alarmLabel);
-            restartIntent.putExtra(Alarm.NFC_TAG_ID, expectedNfcId);
-            restartIntent.putExtra(Alarm.ALARM_TONE, alarmTonePath);
-            restartIntent.putExtra(Alarm.VIBRATE, vibrateEnabled);
+            restartIntent.putExtra(Alarm.ID, alarm.getId());
             startService(restartIntent);
         }
     }
@@ -181,11 +180,11 @@ public class NightKillerService extends Service {
         return null;
     }
 
-    private MediaPlayer setupNewMediaPlayer() {
+    private MediaPlayer setupNewMediaPlayer(Alarm alarm) {
         MediaPlayer mediaPlayer = null;
         try {
             mediaPlayer = new MediaPlayer();
-            mediaPlayer.setDataSource(this, Uri.parse(alarmTonePath));
+            mediaPlayer.setDataSource(this, Uri.parse(alarm.getAlarmTone()));
             boolean overrideVolume = PreferenceManager.getDefaultSharedPreferences(this)
                     .getBoolean(getString(R.string.overrideAlarmVolume), false);
             if(overrideVolume) {

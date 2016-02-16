@@ -36,31 +36,16 @@ public class AlarmIndicator {
     private static final String FILE_NAME = "alarm.indicator";
 
     private long id;
-    private String label;
-    private byte[] nfcId;
-    private String alarmTonePath;
-    private boolean vibrate;
     private Context context;
 
     public AlarmIndicator(Context context) {
         this.context = context;
     }
 
-    public void saveAlarm(long id, String label, byte[] nfcId,
-                          String alarmTonePath, boolean vibrate) {
-
-        this.id = id;
-        this.label = label;
-        this.nfcId = nfcId;
-        this.alarmTonePath = alarmTonePath;
-        this.vibrate = vibrate;
+    public void saveAlarm(Alarm alarm) {
 
         String content;
-        content = Long.toString(id) + "\n";
-        content += label + "\n";
-        content += Arrays.toString(nfcId) + "\n";
-        content += alarmTonePath + "\n";
-        content += vibrate ? "1" : "0";
+        content = Long.toString(alarm.getId());
         try {
             FileOutputStream iFile = context.openFileOutput(FILE_NAME, Context.MODE_PRIVATE);
             OutputStreamWriter out = new OutputStreamWriter(iFile);
@@ -72,26 +57,15 @@ public class AlarmIndicator {
         }
     }
 
-    public void restoreAlarm() {
-        try {
-            FileInputStream iFile = context.openFileInput(FILE_NAME);
-            BufferedReader in = new BufferedReader(new InputStreamReader(iFile));
-            id = Long.parseLong(in.readLine());
-            label = in.readLine();
-            String[] nfcIdRaw = in.readLine().replace("[", "")
-                    .replace("]", "")
-                    .replace(" ", "")
-                    .split(",");
-            nfcId = new byte[nfcIdRaw.length];
-            for(int i = 0; i < nfcIdRaw.length; i++) {
-                nfcId[i] = Byte.parseByte(nfcIdRaw[i]);
-            }
-            alarmTonePath = in.readLine();
-            vibrate = in.readLine().equals("1");
-            in.close();
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
+    public Alarm restoreAlarm(Context context) throws Exception {
+
+        FileInputStream iFile = context.openFileInput(FILE_NAME);
+        BufferedReader in = new BufferedReader(new InputStreamReader(iFile));
+        id = Long.parseLong(in.readLine());
+        in.close();
+
+        return Alarm.getFromCursorItem(
+                AlarmDBOpenHelper.getAlarmDBOpenHelper(context).getReadableItem(id));
     }
 
     public void removeIndicator() {
@@ -101,25 +75,5 @@ public class AlarmIndicator {
         } catch (Exception e) {
             e.printStackTrace();
         }
-    }
-
-    public long getId() {
-        return id;
-    }
-
-    public String getLabel() {
-        return label;
-    }
-
-    public byte[] getNfcId() {
-        return nfcId;
-    }
-
-    public String getAlarmTone() {
-        return alarmTonePath;
-    }
-
-    public boolean isVibrateEnabled() {
-        return vibrate;
     }
 }
