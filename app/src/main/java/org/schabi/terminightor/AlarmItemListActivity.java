@@ -78,6 +78,9 @@ public class AlarmItemListActivity extends FragmentActivity
                 startActivity(intent);
             }
         });
+
+        // will (cancel and) setup the next alarm
+        AlarmSetupManager.setupNextAlarm(this);
     }
 
     @Override

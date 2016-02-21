@@ -254,12 +254,7 @@ public class AlarmItemDetailFragment extends Fragment {
         } else {
             alarmDBOpenHelper.update(alarm);
         }
-        if (alarm.isEnabled()) {
-            AlarmSetupManager.cancelAllAlarms(getActivity());
-            AlarmSetupManager.readAndSetupAlarms(getActivity());
-        } else {
-            AlarmSetupManager.cancelAlarm(getActivity(), alarm.getId());
-        }
+        AlarmSetupManager.setupNextAlarm(getActivity());
         Toast.makeText(getContext(), R.string.alarmSaved, Toast.LENGTH_SHORT).show();
     }
 
@@ -329,7 +324,7 @@ public class AlarmItemDetailFragment extends Fragment {
     private void leaveAndDelete() {
         if(alarm.getId() >= 0) {
             dbHandler.delete(alarm.getId());
-            AlarmSetupManager.cancelAlarm(getActivity(), alarm.getId());
+            AlarmSetupManager.setupNextAlarm(getActivity());
         }
         if(getActivity().getClass() == AlarmItemDetailActivity.class) {
             getActivity().finish();

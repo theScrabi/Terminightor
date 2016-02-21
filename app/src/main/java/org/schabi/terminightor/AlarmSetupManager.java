@@ -51,19 +51,17 @@ public class AlarmSetupManager extends BroadcastReceiver {
     @Override
     public void onReceive(Context context, Intent intent) {
         if(Intent.ACTION_BOOT_COMPLETED.equals(intent.getAction())) {
-            readAndSetupAlarms(context);
-            setupRenewTimer(context);
+            setupNextAlarm(context);
         } else if(Intent.ACTION_SHUTDOWN.equals(intent.getAction())) {
             Log.d(TAG, "Shutdown received");
-            cancelAllAlarms(context);
-            cancelRenewAlarm(context);
+            cancelNextAlarm(context);
         } else if(ACTION_RENEW_ALARMS.equals(intent.getAction())) {
-            Log.d(TAG, "renew alarms");
-            readAndSetupAlarms(context);
-            setupRenewTimer(context);
+            Log.d(TAG, "renew alarm");
+            setupNextAlarm(context);
         }
     }
 
+    /*
     public static void readAndSetupAlarms(Context context) {
         setupAlarmsByCursor(context,
                 AlarmDBOpenHelper.getAlarmDBOpenHelper(context).query());
@@ -73,9 +71,13 @@ public class AlarmSetupManager extends BroadcastReceiver {
         AlarmDBOpenHelper db = AlarmDBOpenHelper.getAlarmDBOpenHelper(context);
         setupAlarmsByCursor(context, db.getValueOf(id));
     }
+    */
 
+    /*
     // initalize all alarms
     private static void setupAlarmsByCursor(Context context, Cursor cursor) {
+
+
         cursor.moveToFirst();
 
         Calendar now = Calendar.getInstance();
@@ -96,15 +98,16 @@ public class AlarmSetupManager extends BroadcastReceiver {
 
         AlarmManager alarmManager = (AlarmManager) context.getSystemService(Context.ALARM_SERVICE);
 
-        while(!cursor.isAfterLast()) {
+        while (!cursor.isAfterLast()) {
             Alarm alarm = null;
             try {
                 alarm = Alarm.getFromCursorItem(cursor);
-            } catch(Exception e) {
+            } catch (Exception e) {
                 e.printStackTrace();
             }
 
-            if(alarm.isEnabled()) {
+
+            if (alarm.isEnabled()) {
                 long alarmDate = midnightToday.getTimeInMillis()
                         + alarm.getAlarmTimeInMillis();
 
@@ -127,7 +130,7 @@ public class AlarmSetupManager extends BroadcastReceiver {
                         || alarm.isDayEnabled(alarmTestDate.get(Calendar.DAY_OF_WEEK))) {
 
                     PendingIntent alarmPendingIntent =
-                            PendingIntent.getBroadcast(context, (int)alarm.getId(),
+                            PendingIntent.getBroadcast(context, (int) alarm.getId(),
                                     alarm.getAlarmIntent(), PendingIntent.FLAG_CANCEL_CURRENT);
 
                     if (Build.VERSION.SDK_INT >= 19) {
@@ -141,40 +144,83 @@ public class AlarmSetupManager extends BroadcastReceiver {
             cursor.moveToNext();
         }
 
-        if(!renewAlarmIsUp(context)) {
+        if (!renewAlarmIsUp(context)) {
             Log.d(TAG, "set renew alarm");
             setupRenewTimer(context);
         }
     }
+    */
 
-    public static void setupDebugAlarm(Context context) {
+    public static Alarm getNextAlarm(Context context) throws Exception {
+        Cursor cursor = AlarmDBOpenHelper.getAlarmDBOpenHelper(context).query();
+        cursor.moveToFirst();
+
+        Calendar nextAlarmTime = null;
+        Alarm nextAlarm = null;
+
+        while(!cursor.isAfterLast()) {
+            Alarm alarm = Alarm.getFromCursorItem(cursor);
+
+            //will return null if alarm is not enabled
+            Calendar dateOfAlarm = alarm.getNextAlarmDate();
+
+            if(dateOfAlarm != null
+                    &&(nextAlarmTime == null || dateOfAlarm.before(nextAlarmTime))) {
+                nextAlarmTime = dateOfAlarm;
+                nextAlarm = alarm;
+            }
+
+            cursor.moveToNext();
+        }
+        return nextAlarm;
+    }
+
+    public static void cancelNextAlarm(Context context) {
+        // Does only cancel the pending intent, it does not write to the database.
         AlarmManager alarmManager = (AlarmManager) context.getSystemService(Context.ALARM_SERVICE);
-        Calendar ad = Calendar.getInstance();
-        ad.add(Calendar.SECOND, 1);
-        long alarmDate = ad.getTimeInMillis();
-
         Intent alarmIntent = new Intent(NightKillerReceiver.ACTION_FIRE_ALARM);
-        alarmIntent.putExtra(Alarm.ID, 42l);
-        alarmIntent.putExtra(Alarm.NAME, "debug alarm");
-        alarmIntent.putExtra(Alarm.NFC_TAG_ID, new byte[]{-21, 54, 63, 124});
-        alarmIntent.putExtra(Alarm.ALARM_REPEAT, false);
-        alarmIntent.putExtra(Alarm.ALARM_TONE, "content://media/internal/audio/media/10");
-        alarmIntent.putExtra(Alarm.VIBRATE, true);
-        PendingIntent alarmPendingIntent = PendingIntent.getBroadcast(
-                context, 42, alarmIntent, PendingIntent.FLAG_CANCEL_CURRENT);
+        PendingIntent alarmPendingIntent = PendingIntent.getBroadcast(context,
+                SpecialPendingIds.NEXT_ALARM, alarmIntent, PendingIntent.FLAG_CANCEL_CURRENT);
+        alarmManager.cancel(alarmPendingIntent);
+    }
 
-        if(Build.VERSION.SDK_INT >= 19) {
-            alarmManager.setExact(AlarmManager.RTC_WAKEUP, alarmDate, alarmPendingIntent);
-        } else {
-            alarmManager.set(AlarmManager.RTC_WAKEUP, alarmDate, alarmPendingIntent);
+    public static void setupNextAlarm(Context context) {
+        cancelNextAlarm(context);
+        AlarmManager alarmManager = (AlarmManager) context.getSystemService(Context.ALARM_SERVICE);
+        Alarm alarm = null;
+        try {
+            alarm = getNextAlarm(context);
+        } catch(Exception e) {
+            e.printStackTrace();
         }
-        Log.d(TAG, "setup alarm");
 
-        if(!renewAlarmIsUp(context)) {
-            Log.d(TAG, "set renew alarm");
-            setupRenewTimer(context);
+        if(alarm != null) {
+            PendingIntent alarmPendingIntent =
+                    PendingIntent.getBroadcast(context, SpecialPendingIds.NEXT_ALARM,
+                            alarm.getAlarmIntent(), PendingIntent.FLAG_CANCEL_CURRENT);
+
+            if (Build.VERSION.SDK_INT >= 19) {
+                alarmManager.setExact(AlarmManager.RTC_WAKEUP,
+                        alarm.getNextAlarmDate().getTimeInMillis(), alarmPendingIntent);
+            } else {
+                alarmManager.set(AlarmManager.RTC_WAKEUP,
+                        alarm.getNextAlarmDate().getTimeInMillis(), alarmPendingIntent);
+            }
         }
     }
+
+    public static void setAlarmEnabledById(Context context, long id, boolean enabled) throws Exception {
+        // cancel in database
+        AlarmDBOpenHelper db = AlarmDBOpenHelper.getAlarmDBOpenHelper(context);
+        Alarm alarm = Alarm.getFromCursorItem(db.getReadableItem(id));
+        alarm.setEnabled(enabled);
+        db.update(alarm);
+
+        // reset intent
+        setupNextAlarm(context);
+    }
+
+    /*
 
     public static boolean renewAlarmIsUp(Context context) {
         Intent alarmIntent = new Intent(ACTION_RENEW_ALARMS);
@@ -237,5 +283,5 @@ public class AlarmSetupManager extends BroadcastReceiver {
                     AlarmManager.RTC_WAKEUP, setupDate.getTimeInMillis(), pendingSetupIntent);
         }
     }
-
+    */
 }

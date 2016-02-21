@@ -3,6 +3,7 @@ package org.schabi.terminightor;
 import android.content.ContentValues;
 import android.content.Intent;
 import android.database.Cursor;
+import android.util.Log;
 
 import java.util.Calendar;
 
@@ -27,6 +28,8 @@ import java.util.Calendar;
  */
 
 public class Alarm {
+
+    private static final String TAG = Alarm.class.toString();
 
     // keys
     public static final String ID = "_id";
@@ -214,7 +217,7 @@ public class Alarm {
         if(isEnabled()) {
             final Calendar now = Calendar.getInstance();
             Calendar nextAlarm = Calendar.getInstance();
-            Calendar midnightToday = now;
+            Calendar midnightToday = (Calendar) now.clone();
             midnightToday.set(Calendar.HOUR, 0);
             midnightToday.set(Calendar.AM_PM, 0);
             midnightToday.set(Calendar.MINUTE, 0);
@@ -223,7 +226,7 @@ public class Alarm {
             midnightToday.set(Calendar.MILLISECOND, 0);
 
             if(isRepeatEnabled()) {
-                Calendar helperTime = midnightToday;
+                Calendar helperTime = (Calendar) midnightToday.clone();
 
                 helperTime.add(Calendar.HOUR_OF_DAY, alarmHour);
                 helperTime.add(Calendar.MINUTE, alarmMinute);
@@ -239,7 +242,7 @@ public class Alarm {
                     // tomorrow is +1 today next week is +7
                     // today was already tested by the if clause above
                     for(int daysFromNow = 1; daysFromNow <= 7; daysFromNow++) {
-                        helperTime = midnightToday;
+                        helperTime = (Calendar) midnightToday.clone();
                         helperTime.add(Calendar.DAY_OF_MONTH, daysFromNow);
                         if(isDayEnabled(helperTime.get(Calendar.DAY_OF_WEEK))) {
                             helperTime.add(Calendar.HOUR_OF_DAY, alarmHour);
@@ -257,7 +260,7 @@ public class Alarm {
                     nextAlarm.add(Calendar.DAY_OF_MONTH, 1);
                 }
             }
-            return nextAlarm;
+            return (Calendar) nextAlarm.clone();
         } else {
             return null;
         }

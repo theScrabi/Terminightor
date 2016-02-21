@@ -21,6 +21,7 @@ package org.schabi.terminightor;
  */
 
 public class SpecialPendingIds {
+    public static final int NEXT_ALARM = 42;
     public static final int SET_TAG_READ_NFC_TAG_ID = 10000;
     public static final int NIGHT_KILLER_READ_NFC_TAG_ID = 10001;
     public static final int OPEN_ALARM_ACTIVITY = 10002;

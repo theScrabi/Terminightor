@@ -39,8 +39,7 @@ public class NightKillerReceiver extends BroadcastReceiver {
             intent.setClass(context, NightKillerService.class);
 
             context.startService(alarmServiceIntent);
-
-
+            AlarmSetupManager.setupNextAlarm(context);
         }
     }
 }

@@ -56,23 +56,31 @@ public class AlarmAdapter extends CursorAdapter {
         TextView alarmTime = (TextView) view.findViewById(R.id.alarmTimeLabel);
         TextView amPmSuffix = (TextView) view.findViewById(R.id.amPmSuffix);
         Switch enabledSwitch = (Switch) view.findViewById(R.id.alarmEnabledSwitch);
-        enabledSwitch.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
-            @Override
-            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
-                AlarmDBOpenHelper.getAlarmDBOpenHelper(context).setAlarmEnabled(id, isChecked);
-                if(isChecked) {
-                    AlarmSetupManager.cancelAllAlarms(context);
-                    AlarmSetupManager.readAndSetupAlarms(context);
-                } else {
-                    AlarmSetupManager.cancelAlarm(context, id);
-                }
-            }
-        });
 
         alarmLabel.setText(alarm.getName());
         alarmTime.setText(alarm.getTimeString(use24Hours));
         amPmSuffix.setText(alarm.getAMPMSuffix(use24Hours));
         enabledSwitch.setChecked(alarm.isEnabled());
+
+        enabledSwitch.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+            @Override
+            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+                /*
+                AlarmDBOpenHelper.getAlarmDBOpenHelper(context).setAlarmEnabled(id, isChecked);
+                if (isChecked) {
+                    AlarmSetupManager.cancelAllAlarms(context);
+                    AlarmSetupManager.readAndSetupAlarms(context);
+                } else {
+                    AlarmSetupManager.cancelAlarm(context, id);
+                }
+                */
+                try {
+                    AlarmSetupManager.setAlarmEnabledById(context, id, isChecked);
+                } catch(Exception e) {
+                    e.printStackTrace();
+                }
+            }
+        });
     }
 
     @Override
