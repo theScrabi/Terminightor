@@ -4,6 +4,7 @@ import android.content.Context;
 import android.database.Cursor;
 import android.preference.PreferenceManager;
 import android.support.v4.widget.CursorAdapter;
+import android.support.v7.widget.SwitchCompat;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -55,7 +56,7 @@ public class AlarmAdapter extends CursorAdapter {
         TextView alarmLabel = (TextView) view.findViewById(R.id.alarmLabel);
         TextView alarmTime = (TextView) view.findViewById(R.id.alarmTimeLabel);
         TextView amPmSuffix = (TextView) view.findViewById(R.id.amPmSuffix);
-        Switch enabledSwitch = (Switch) view.findViewById(R.id.alarmEnabledSwitch);
+        SwitchCompat enabledSwitch = (SwitchCompat) view.findViewById(R.id.alarmEnabledSwitch);
 
         alarmLabel.setText(alarm.getName());
         alarmTime.setText(alarm.getTimeString(use24Hours));
