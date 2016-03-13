@@ -40,7 +40,6 @@ public class AlarmDBOpenHelper extends SQLiteOpenHelper {
         public int ciAlarmTone;
         public int ciVibrate;
         public int ciAlarmNfcId;
-
     }
 
     private static AlarmDBOpenHelper alarmDBOpenHelper = null;
@@ -61,18 +60,6 @@ public class AlarmDBOpenHelper extends SQLiteOpenHelper {
             + Alarm.VIBRATE + " INTEGER,"
             + Alarm.NFC_TAG_ID + " BLOB);";
     public static final String ALARM_TABLE_DROP = "DROP TABLE IF EXISTS " + ALARM_TABLE + ";";
-
-    /*
-    // day flags
-    public static int ENABLE_REPEAT = (1<<7);
-    public static int MONDAY = 1;
-    public static int THUESDAY = (1<<1);
-    public static int WEDNESDAY = (1<<2);
-    public static int THURSDAY = (1<<3);
-    public static int FRIDAY = (1<<4);
-    public static int SATURDAY = (1<<5);
-    public static int SUNDAY = (1<<6);
-    */
 
     public AlarmDBOpenHelper(Context context) {
         super(context, DB_NAME, null, DB_VERSION);
