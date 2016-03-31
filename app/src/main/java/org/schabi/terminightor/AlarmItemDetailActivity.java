@@ -36,6 +36,7 @@ public class AlarmItemDetailActivity extends AppCompatActivity {
 
         // Show the Up button in the action bar.
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+        getSupportActionBar().setHomeAsUpIndicator(R.drawable.ic_arrow_back_white_24dp);
 
         // savedInstanceState is non-null when there is fragment state
         // saved from previous configurations of this activity
