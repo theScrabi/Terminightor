@@ -283,6 +283,7 @@ public class AlarmItemDetailFragment extends Fragment {
         } else {
             alarm = new Alarm();
             repeatCheckBox.setChecked(false);
+            chooseDateView.setRepeatEnabled(false);
             setAlarmTimeView.setText("--:--");
             setAlarmAMPMView.setText("");
             Uri alarmToneUri = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_ALARM);
