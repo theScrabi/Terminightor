@@ -2,4 +2,5 @@
 <resources>
     <string name="use24Hours">use_24_hours</string>
     <string name="overrideAlarmVolume">override_alarm_volume</string>
+    <string name="ignoreNfcId">ignore_nfc_id</string>
 </resources>

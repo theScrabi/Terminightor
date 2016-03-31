@@ -26,4 +26,6 @@
     <string name="unlockInfoText">Unlock screen, and enable NFC.</string>
     <string name="defaultRingTone">Default</string>
     <string name="alarmSaved">Alarm Saved</string>
+    <string name="ignoreNfcTagIdTitle">Ignore NFC tag ID</string>
+    <string name="ignoreNfcTagIdSummary">If this is set NewPipe will not check the ID of an Nfc tag, when switching an alarm off.</string>
 </resources>

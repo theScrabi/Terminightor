@@ -9,6 +9,7 @@ import android.content.IntentFilter;
 import android.nfc.NfcAdapter;
 import android.os.Bundle;
 import android.os.Handler;
+import android.preference.PreferenceManager;
 import android.support.v4.content.LocalBroadcastManager;
 import android.util.Log;
 import android.view.View;
@@ -48,6 +49,7 @@ public class NightKillerActivity extends Activity {
     private ImageView innerWave;
     private ImageView outerWave;
     private boolean hasStopped = false;
+    private boolean ignoreNfcTagId = false;
 
     private NfcAdapter nfcAdapter;
     private long alarmId = -1;
@@ -111,6 +113,9 @@ public class NightKillerActivity extends Activity {
 
         nfcAdapter = NfcAdapter.getDefaultAdapter(this);
 
+        ignoreNfcTagId = PreferenceManager.getDefaultSharedPreferences(this)
+                .getBoolean(this.getString(R.string.ignoreNfcId), false);
+
         Log.d(TAG, Long.toString(alarmId));
     }
 
@@ -145,7 +150,7 @@ public class NightKillerActivity extends Activity {
         super.onNewIntent(intent);
         byte[] nfcId = intent.getByteArrayExtra(NfcAdapter.EXTRA_ID);
         if(nfcId != null) {
-            if (Arrays.equals(nfcId, expectedNfcId)) {
+            if (Arrays.equals(nfcId, expectedNfcId) || ignoreNfcTagId) {
                 Log.d(TAG, "Send kill alarm");
                 Intent killAlarmIntent = new Intent(NightKillerService.ACTION_KILL_ALARM);
                 LocalBroadcastManager.getInstance(this).sendBroadcast(killAlarmIntent);

@@ -14,4 +14,10 @@
         android:summary="@string/overrideAlarmVolumeDescription"
         android:defaultValue="false"/>
 
+    <CheckBoxPreference
+        android:key="@string/ignoreNfcId"
+        android:title="@string/ignoreNfcTagIdTitle"
+        android:summary="@string/ignoreNfcTagIdSummary"
+        android:defaultValue="false"/>
+
 </PreferenceScreen>
