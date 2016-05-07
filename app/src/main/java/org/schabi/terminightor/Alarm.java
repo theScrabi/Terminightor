@@ -3,6 +3,8 @@ package org.schabi.terminightor;
 import android.content.ContentValues;
 import android.content.Intent;
 import android.database.Cursor;
+import android.os.Parcel;
+import android.os.Parcelable;
 import android.util.Log;
 
 import java.util.Calendar;
@@ -27,7 +29,7 @@ import java.util.Calendar;
  * along with Terminightor.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-public class Alarm {
+public class Alarm implements Parcelable {
 
     private static final String TAG = Alarm.class.toString();
 
@@ -273,4 +275,54 @@ public class Alarm {
     private static int toTwelfHours(int tfHour) {
         return (tfHour % 12 == 0 ? 12 : (tfHour % 12));
     }
+
+
+    //parcelable stuff
+
+    @Override
+    public int describeContents() {
+        return 0;
+    }
+
+    @Override
+    public void writeToParcel(Parcel dest, int flags) {
+        dest.writeLong(this.id);
+        dest.writeString(this.name);
+        dest.writeByte(enabled ? (byte) 1 : (byte) 0);
+        dest.writeInt(this.alarmHour);
+        dest.writeInt(this.alarmMinute);
+        dest.writeInt(this.enabledDays);
+        dest.writeByte(repeatEnabled ? (byte) 1 : (byte) 0);
+        dest.writeString(this.alarmTone);
+        dest.writeByte(vibrate ? (byte) 1 : (byte) 0);
+        dest.writeByteArray(this.nfcTagId);
+    }
+
+    public Alarm() {
+    }
+
+    protected Alarm(Parcel in) {
+        this.id = in.readLong();
+        this.name = in.readString();
+        this.enabled = in.readByte() != 0;
+        this.alarmHour = in.readInt();
+        this.alarmMinute = in.readInt();
+        this.enabledDays = in.readInt();
+        this.repeatEnabled = in.readByte() != 0;
+        this.alarmTone = in.readString();
+        this.vibrate = in.readByte() != 0;
+        this.nfcTagId = in.createByteArray();
+    }
+
+    public static final Parcelable.Creator<Alarm> CREATOR = new Parcelable.Creator<Alarm>() {
+        @Override
+        public Alarm createFromParcel(Parcel source) {
+            return new Alarm(source);
+        }
+
+        @Override
+        public Alarm[] newArray(int size) {
+            return new Alarm[size];
+        }
+    };
 }

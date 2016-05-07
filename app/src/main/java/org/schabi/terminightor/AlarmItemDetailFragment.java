@@ -55,6 +55,7 @@ public class AlarmItemDetailFragment extends Fragment {
     private static final int READ_NFC_ID = 0;    // request codes
     private static final int SET_ALARM_TONE = 1;
 
+    // views
     private TextView setAlarmTimeView;
     private TextView setAlarmAMPMView;
     private CheckBox repeatCheckBox;
@@ -65,14 +66,21 @@ public class AlarmItemDetailFragment extends Fragment {
     private ImageView nfcTagLabelView;
     private TextView nfcTagIdView;
     private FloatingActionButton addNfcTabButton;
-
     private TimePickerDialog timePickerDialog;
-
     private AlarmDBOpenHelper dbHandler;
 
     private Alarm alarm;
-
     private boolean use24Hours = false;
+    // indicates wether the user already set a time or not.
+    // this is used in order to display the --:-- styled view
+    // after restoring the fragment.
+    private boolean timeValueSet = false;
+    private Bundle lastSavedInstaneState = null;
+
+    // saved instance state ids
+    private static final String ALARM = "alarm";
+    private static final String USE24HOURS = "use24Hours";
+    private static final String TIME_VALUE_SET = "timeValueSet";
 
     /**
      * The fragment argument representing the item ID that this fragment
@@ -106,7 +114,7 @@ public class AlarmItemDetailFragment extends Fragment {
                 }
                 setAlarmTimeView.setText(alarm.getTimeString(use24Hours));
                 setAlarmAMPMView.setText(alarm.getAMPMSuffix(use24Hours));
-
+                timeValueSet = true;
             }
         }, 0, 0, true);
 
@@ -125,6 +133,7 @@ public class AlarmItemDetailFragment extends Fragment {
     @Override
     public void onActivityCreated(Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
+        lastSavedInstaneState = savedInstanceState;
         Activity a = getActivity();
         setAlarmTimeView = (TextView) a.findViewById(R.id.setAlarmTimeView);
         setAlarmAMPMView = (TextView) a.findViewById(R.id.setAlarmAmPmSuffix);
@@ -180,18 +189,40 @@ public class AlarmItemDetailFragment extends Fragment {
                 startActivityForResult(intent, READ_NFC_ID);
             }
         });
+    }
 
-        if (getArguments().containsKey(ARG_ITEM_ID)) {
-            Log.d(TAG, getArguments().getString(ARG_ITEM_ID));
-            try {
-                restoreItem(Long.parseLong(getArguments().getString(ARG_ITEM_ID)));
-            } catch (Exception e) {
-                e.printStackTrace();
+    @Override
+    public void onResume() {
+        super.onResume();
+        if(lastSavedInstaneState == null) {
+            if (getArguments().containsKey(ARG_ITEM_ID)) {
+                try {
+                    restoreItem(Long.parseLong(getArguments().getString(ARG_ITEM_ID)));
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+            } else {
+                Log.e(TAG, "ERROR: no item id given.");
+                getActivity().finish();
             }
         } else {
-            Log.e(TAG, "ERROR: no item id given.");
-            getActivity().finish();
+            use24Hours = lastSavedInstaneState.getBoolean(USE24HOURS);
+            alarm = lastSavedInstaneState.getParcelable(ALARM);
+            timeValueSet = lastSavedInstaneState.getBoolean(TIME_VALUE_SET);
+            restoreAlarm(alarm);
+            if(!timeValueSet) {
+                displayNoTimeEntered();
+            }
         }
+    }
+
+    @Override
+    public void onSaveInstanceState(Bundle outState) {
+        super.onSaveInstanceState(outState);
+        updateAlarm();
+        outState.putParcelable(ALARM, alarm);
+        outState.putBoolean(USE24HOURS, use24Hours);
+        outState.putBoolean(TIME_VALUE_SET, timeValueSet);
     }
 
     @Override
@@ -241,9 +272,7 @@ public class AlarmItemDetailFragment extends Fragment {
 
     public void updateItem() {
         AlarmDBOpenHelper alarmDBOpenHelper = AlarmDBOpenHelper.getAlarmDBOpenHelper(getActivity());
-        alarm.setTerminightorStyledAlarmDays(chooseDateView.getEnabledDays());
-        alarm.setVibrateEnabled(vibrateCheckBox.isChecked());
-        alarm.setName(alarmLabelBox.getText().toString());
+        updateAlarm();
         if (alarm.getId() < 0) {
             alarmDBOpenHelper.insert(alarm);
         } else {
@@ -251,6 +280,12 @@ public class AlarmItemDetailFragment extends Fragment {
         }
         AlarmSetupManager.setupNextAlarm(getActivity());
         Toast.makeText(getContext(), R.string.alarmSaved, Toast.LENGTH_SHORT).show();
+    }
+
+    public void updateAlarm() {
+        alarm.setTerminightorStyledAlarmDays(chooseDateView.getEnabledDays());
+        alarm.setVibrateEnabled(vibrateCheckBox.isChecked());
+        alarm.setName(alarmLabelBox.getText().toString());
     }
 
     public void restoreItem(long id) {
@@ -263,29 +298,13 @@ public class AlarmItemDetailFragment extends Fragment {
             } catch(Exception e) {
                 e.printStackTrace();
             }
-
-            setAlarmTimeView.setText(alarm.getTimeString(use24Hours));
-            timePickerDialog.updateTime(alarm.getHour(), alarm.getMinute());
-            setAlarmAMPMView.setText(alarm.getAMPMSuffix(use24Hours));
-            chooseDateView.setEnabledDays(alarm.getTerminightorStyledAlarmDays());
-            repeatCheckBox.setChecked(chooseDateView.isRepeatEnabled());
-            if (repeatCheckBox.isChecked()) {
-                chooseDateView.setVisibility(View.VISIBLE);
-            }
-            alarmLabelBox.setText(alarm.getName());
-            setAlarmToneButton.setText(RingtoneManager
-                    .getRingtone(c, Uri.parse(alarm.getAlarmTone())).getTitle(c));
-            vibrateCheckBox.setChecked(alarm.isVibrate());
-            if (alarm.getNfcTagId().length != 0) {
-                nfcTagLabelView.setVisibility(View.VISIBLE);
-                nfcTagIdView.setText(Arrays.toString(alarm.getNfcTagId()));
-            }
+            restoreAlarm(alarm);
+            timeValueSet = true;
         } else {
             alarm = new Alarm();
             repeatCheckBox.setChecked(false);
             chooseDateView.setRepeatEnabled(false);
-            setAlarmTimeView.setText("--:--");
-            setAlarmAMPMView.setText("");
+            displayNoTimeEntered();
             Uri alarmToneUri = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_ALARM);
             alarm.setAlarmTone(alarmToneUri.toString());
             try {
@@ -295,7 +314,26 @@ public class AlarmItemDetailFragment extends Fragment {
                 e.printStackTrace();
                 setAlarmToneButton.setText(c.getString(R.string.defaultRingTone));
             }
-            vibrateCheckBox.setChecked(false);
+        }
+    }
+
+    private void restoreAlarm(Alarm alarm) {
+        Context c = getContext();
+        setAlarmTimeView.setText(alarm.getTimeString(use24Hours));
+        timePickerDialog.updateTime(alarm.getHour(), alarm.getMinute());
+        setAlarmAMPMView.setText(alarm.getAMPMSuffix(use24Hours));
+        chooseDateView.setEnabledDays(alarm.getTerminightorStyledAlarmDays());
+        repeatCheckBox.setChecked(chooseDateView.isRepeatEnabled());
+        if (chooseDateView.isRepeatEnabled()) {
+            chooseDateView.setVisibility(View.VISIBLE);
+        }
+        alarmLabelBox.setText(alarm.getName());
+        setAlarmToneButton.setText(RingtoneManager
+                .getRingtone(c, Uri.parse(alarm.getAlarmTone())).getTitle(c));
+        vibrateCheckBox.setChecked(alarm.isVibrate());
+        if (alarm.getNfcTagId() != null && alarm.getNfcTagId().length != 0) {
+            nfcTagLabelView.setVisibility(View.VISIBLE);
+            nfcTagIdView.setText(Arrays.toString(alarm.getNfcTagId()));
         }
     }
 
@@ -325,6 +363,11 @@ public class AlarmItemDetailFragment extends Fragment {
         if(getActivity().getClass() == AlarmItemDetailActivity.class) {
             getActivity().finish();
         }
+    }
+
+    private void displayNoTimeEntered() {
+        setAlarmTimeView.setText("--:--");
+        setAlarmAMPMView.setText("");
     }
 
     public boolean hasTag() {
