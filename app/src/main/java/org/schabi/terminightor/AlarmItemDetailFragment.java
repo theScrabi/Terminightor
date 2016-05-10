@@ -82,8 +82,10 @@ public class AlarmItemDetailFragment extends Fragment {
     private static final String USE24HOURS = "use24Hours";
     private static final String TIME_VALUE_SET = "timeValueSet";
 
-    // these variable are helping to carry values through the good damn android lifecycle
+    // these variables are used to make the app work despide that good damn fragment lifecicle
     private byte[] returnedNfcTagId = null;
+    // Will be set to true in the onResume() methode.
+    private boolean gotInited = false;
 
     /**
      * The fragment argument representing the item ID that this fragment
@@ -198,15 +200,19 @@ public class AlarmItemDetailFragment extends Fragment {
     public void onResume() {
         super.onResume();
         if(lastSavedInstaneState == null) {
-            if (getArguments().containsKey(ARG_ITEM_ID)) {
-                try {
-                    restoreItem(Long.parseLong(getArguments().getString(ARG_ITEM_ID)));
-                } catch (Exception e) {
-                    e.printStackTrace();
+            // If this fragment was already existing we don't need to load the arguments again
+            // otherwiese we would override already set values.
+            if(!gotInited) {
+                if (getArguments().containsKey(ARG_ITEM_ID)) {
+                    try {
+                        restoreItem(Long.parseLong(getArguments().getString(ARG_ITEM_ID)));
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                    }
+                } else {
+                    Log.e(TAG, "ERROR: no item id given.");
+                    getActivity().finish();
                 }
-            } else {
-                Log.e(TAG, "ERROR: no item id given.");
-                getActivity().finish();
             }
         } else {
             use24Hours = lastSavedInstaneState.getBoolean(USE24HOURS);
@@ -222,6 +228,7 @@ public class AlarmItemDetailFragment extends Fragment {
             alarm.setNfcTagId(returnedNfcTagId);
             returnedNfcTagId = null;
         }
+        gotInited = true;
     }
 
     @Override
