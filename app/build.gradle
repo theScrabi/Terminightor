@@ -8,9 +8,9 @@ android {
         applicationId "org.schabi.terminightor"
         minSdkVersion 15
         targetSdkVersion 23
-        versionCode 8
+        versionCode 9
 
-        versionName "0.9.6"
+        versionName "0.9.7"
     }
     buildTypes {
         release {
