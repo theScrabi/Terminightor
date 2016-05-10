@@ -82,6 +82,9 @@ public class AlarmItemDetailFragment extends Fragment {
     private static final String USE24HOURS = "use24Hours";
     private static final String TIME_VALUE_SET = "timeValueSet";
 
+    // these variable are helping to carry values through the good damn android lifecycle
+    private byte[] returnedNfcTagId = null;
+
     /**
      * The fragment argument representing the item ID that this fragment
      * represents.
@@ -214,6 +217,11 @@ public class AlarmItemDetailFragment extends Fragment {
                 displayNoTimeEntered();
             }
         }
+
+        if(returnedNfcTagId != null) {
+            alarm.setNfcTagId(returnedNfcTagId);
+            returnedNfcTagId = null;
+        }
     }
 
     @Override
@@ -227,12 +235,11 @@ public class AlarmItemDetailFragment extends Fragment {
 
     @Override
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
-        Log.d(TAG, "result");
         switch(requestCode) {
             case READ_NFC_ID:
                 if (resultCode == SetTagActivity.ID_RECEIVED) {
                     byte[] nfcTagId = data.getByteArrayExtra(SetTagActivity.NFC_ID);
-                    alarm.setNfcTagId(nfcTagId);
+                    returnedNfcTagId = nfcTagId;
                     nfcTagIdView.setText(Arrays.toString(nfcTagId));
                     nfcTagLabelView.setVisibility(View.VISIBLE);
                 }
