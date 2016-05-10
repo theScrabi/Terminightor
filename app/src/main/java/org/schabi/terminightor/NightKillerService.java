@@ -147,6 +147,13 @@ public class NightKillerService extends Service {
                 .setOngoing(true)
                 .build();
         Intent notificationIntent = new Intent(this.getApplicationContext(), NightKillerActivity.class);
+        alarmActivityIntent.setFlags(
+                Intent.FLAG_ACTIVITY_NEW_TASK |
+                        Intent.FLAG_ACTIVITY_EXCLUDE_FROM_RECENTS |
+                        Intent.FLAG_FROM_BACKGROUND);
+        notificationIntent.putExtra(Alarm.ID, alarm.getId());
+        notificationIntent.putExtra(Alarm.NAME, alarm.getName());
+        notificationIntent.putExtra(Alarm.NFC_TAG_ID, alarm.getNfcTagId());
         n.contentIntent = PendingIntent.getActivity(this.getApplicationContext(),
                 SpecialPendingIds.OPEN_ALARM_ACTIVITY, notificationIntent,
                 PendingIntent.FLAG_UPDATE_CURRENT);
@@ -160,8 +167,8 @@ public class NightKillerService extends Service {
         nm = (NotificationManager) getSystemService(NOTIFICATION_SERVICE);
         nm.cancel(NOTIFICATION_ID);
         try {
-            mediaPlayer.release();
             mediaPlayer.stop();
+            mediaPlayer.release();
         } catch (Exception e) {
             e.printStackTrace();
         }
