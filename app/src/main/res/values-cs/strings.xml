@@ -1,4 +1,3 @@
-<?xml version="1.0"?>
 <resources>
     <string name="app_name">Terminightor</string>
     <string name="title_alarmitem_detail">Alarm</string>
@@ -26,4 +25,7 @@
     <string name="warningText">VAROVÁNÍ: Nepoužívejte NFC tagy měnící ID při každém přečtení.</string>
     <string name="unlockInfoText">Odemknout obrazovku a povolit NFC.</string>
     <string name="defaultRingTone">Výchozí</string>
+    <string name="alarmSaved">Alarm uložen</string>
+    <string name="ignoreNfcTagIdTitle">Ignorovat NFC tag ID</string>
+    <string name="ignoreNfcTagIdSummary">Pokud je toto nastaveno, NewPipe nebude kontrolovat ID Nfc tagu při vypínání alarmu.</string>
 </resources>
