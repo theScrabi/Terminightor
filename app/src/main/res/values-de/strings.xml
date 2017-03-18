@@ -26,4 +26,6 @@
     <string name="unlockInfoText">Bildschirm entsperren, und NFC einschalten.</string>
     <string name="defaultRingTone">Standart</string>
     <string name="alarmSaved">Alarm gespeichert</string>
+    <string name="ignoreNfcTagIdTitle">Ignoriere NFC tag ID</string>
+    <string name="ignoreNfcTagIdSummary">Wenn dies gesetzt ist wird Terminightor die ID des Nfc tags nicht prüfen, wenn ein Alarm abgeschaltet wird.</string>
 </resources>
