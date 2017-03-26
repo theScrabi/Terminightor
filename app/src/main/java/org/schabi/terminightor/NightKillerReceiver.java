@@ -35,11 +35,15 @@ public class NightKillerReceiver extends BroadcastReceiver {
         if(intent.getAction().equals(ACTION_FIRE_ALARM)) {
 
             Log.d(TAG, "Gonna kill your night");
-            Intent alarmServiceIntent = intent;
-            intent.setClass(context, NightKillerService.class);
+            long id = intent.getLongExtra(Alarm.ID, -1);
 
-            context.startService(alarmServiceIntent);
             AlarmSetupManager.setupNextAlarm(context);
+
+            Intent alarmServiceIntent = new Intent();
+            alarmServiceIntent.putExtra(Alarm.ID, id);
+            alarmServiceIntent.setClass(context, NightKillerService.class);
+            context.startService(alarmServiceIntent);
+
         }
     }
 }

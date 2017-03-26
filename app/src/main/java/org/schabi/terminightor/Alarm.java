@@ -8,6 +8,8 @@ import android.os.Parcelable;
 import android.util.Log;
 
 import java.util.Calendar;
+import java.util.Date;
+import java.util.TimeZone;
 
 /**
  * Created by Christian Schabesberger on 14.02.16.
@@ -232,12 +234,13 @@ public class Alarm implements Parcelable {
 
                 helperTime.add(Calendar.HOUR_OF_DAY, alarmHour);
                 helperTime.add(Calendar.MINUTE, alarmMinute);
+                helperTime = handleGermanTimeZone(helperTime);
                 if(isDayEnabled(midnightToday.get(Calendar.DAY_OF_WEEK))
                     && helperTime.after(now)) {
                     // if alarm is set for today and did not yet fire, we can set it up
                     // for today else we set it of for the same day of the week, but next week.
                     nextAlarm = helperTime;
-                    return nextAlarm;
+                    return (Calendar) nextAlarm.clone();
                 } else {
                     // weird for loop ist meant like this:
                     // look for the first alarm between tomorrow and today next week.
@@ -249,8 +252,9 @@ public class Alarm implements Parcelable {
                         if(isDayEnabled(helperTime.get(Calendar.DAY_OF_WEEK))) {
                             helperTime.add(Calendar.HOUR_OF_DAY, alarmHour);
                             helperTime.add(Calendar.MINUTE, alarmMinute);
+                            helperTime = handleGermanTimeZone(helperTime);
                             nextAlarm = helperTime;
-                            return nextAlarm;
+                            return (Calendar) nextAlarm.clone();
                         }
                     }
                 }
@@ -258,6 +262,7 @@ public class Alarm implements Parcelable {
                 nextAlarm = midnightToday;
                 nextAlarm.add(Calendar.HOUR_OF_DAY, alarmHour);
                 nextAlarm.add(Calendar.MINUTE, alarmMinute);
+                nextAlarm = handleGermanTimeZone(nextAlarm);
                 if(nextAlarm.before(now)) {
                     nextAlarm.add(Calendar.DAY_OF_MONTH, 1);
                 }
@@ -266,6 +271,11 @@ public class Alarm implements Parcelable {
         } else {
             return null;
         }
+    }
+
+    private Calendar handleGermanTimeZone(Calendar hTime) {
+        //todo: implement this
+        return hTime;
     }
 
     public boolean hasTag() {
