@@ -26,4 +26,9 @@
         <item name="android:textColor">@android:color/white</item>
     </style>
 
+    <style name="CustomAllertDialog" parent="Theme.AppCompat.Light.Dialog.Alert">
+        <item name="android:textColor">@color/fabButtonColor</item>
+        <item name="android:textColorPrimary">@color/generalColor</item>
+    </style>
+
 </resources>

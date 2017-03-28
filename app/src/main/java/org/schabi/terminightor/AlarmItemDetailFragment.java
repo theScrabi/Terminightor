@@ -352,7 +352,7 @@ public class AlarmItemDetailFragment extends Fragment {
     }
 
     public void noNfcTagSetDialog() {
-        AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
+        AlertDialog.Builder builder = new AlertDialog.Builder(getActivity(), R.style.CustomAllertDialog);
         builder.setMessage(R.string.noNfcTagMessage)
                 .setPositiveButton(R.string.ok, new DialogInterface.OnClickListener() {
                     @Override
