@@ -232,8 +232,8 @@ public class Alarm implements Parcelable {
             if(isRepeatEnabled()) {
                 Calendar helperTime = (Calendar) midnightToday.clone();
 
-                helperTime.add(Calendar.HOUR_OF_DAY, alarmHour);
-                helperTime.add(Calendar.MINUTE, alarmMinute);
+                helperTime.set(Calendar.HOUR_OF_DAY, alarmHour);
+                helperTime.set(Calendar.MINUTE, alarmMinute);
                 helperTime = handleGermanTimeZone(helperTime);
                 if(isDayEnabled(midnightToday.get(Calendar.DAY_OF_WEEK))
                     && helperTime.after(now)) {
@@ -250,8 +250,8 @@ public class Alarm implements Parcelable {
                         helperTime = (Calendar) midnightToday.clone();
                         helperTime.add(Calendar.DAY_OF_MONTH, daysFromNow);
                         if(isDayEnabled(helperTime.get(Calendar.DAY_OF_WEEK))) {
-                            helperTime.add(Calendar.HOUR_OF_DAY, alarmHour);
-                            helperTime.add(Calendar.MINUTE, alarmMinute);
+                            helperTime.set(Calendar.HOUR_OF_DAY, alarmHour);
+                            helperTime.set(Calendar.MINUTE, alarmMinute);
                             helperTime = handleGermanTimeZone(helperTime);
                             nextAlarm = helperTime;
                             return (Calendar) nextAlarm.clone();
@@ -260,8 +260,8 @@ public class Alarm implements Parcelable {
                 }
             } else {
                 nextAlarm = midnightToday;
-                nextAlarm.add(Calendar.HOUR_OF_DAY, alarmHour);
-                nextAlarm.add(Calendar.MINUTE, alarmMinute);
+                nextAlarm.set(Calendar.HOUR_OF_DAY, alarmHour);
+                nextAlarm.set(Calendar.MINUTE, alarmMinute);
                 nextAlarm = handleGermanTimeZone(nextAlarm);
                 if(nextAlarm.before(now)) {
                     nextAlarm.add(Calendar.DAY_OF_MONTH, 1);
