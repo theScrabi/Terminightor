@@ -38,7 +38,7 @@
             android:label="@string/title_set_tag" />
         <activity
             android:name=".NightKillerActivity"
-            android:title="@string/title_activity_night_killer"
+            android:title="Night Killer"
             android:theme="@style/WakeupTheme"/>
 
         <receiver android:name=".AlarmSetupManager" >

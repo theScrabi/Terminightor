@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="use24Hours">use_24_hours</string>
-    <string name="overrideAlarmVolume">override_alarm_volume</string>
-    <string name="ignoreNfcId">ignore_nfc_id</string>
+    <string name="use24Hours" translatable="false">use_24_hours</string>
+    <string name="overrideAlarmVolume" translatable="false">override_alarm_volume</string>
+    <string name="ignoreNfcId" translatable="false">ignore_nfc_id</string>
 </resources>
