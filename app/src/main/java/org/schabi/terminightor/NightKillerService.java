@@ -19,6 +19,9 @@ import android.support.v4.app.NotificationCompat;
 import android.support.v4.content.LocalBroadcastManager;
 import android.util.Log;
 
+import static android.os.Build.VERSION.SDK;
+import static android.os.Build.VERSION.SDK_INT;
+
 /**
  * Created by the-scrabi on 27.09.15.
  *
@@ -187,7 +190,14 @@ public class NightKillerService extends Service {
             boolean overrideVolume = PreferenceManager.getDefaultSharedPreferences(this)
                     .getBoolean(getString(R.string.overrideAlarmVolume), false);
             if(overrideVolume) {
-                mediaPlayer.setVolume(1.0f, 1.0f);
+                if(SDK_INT >= 21) {
+                    AudioManager audioManager =
+                            (AudioManager) getSystemService(Context.AUDIO_SERVICE);
+                    int maxVol = audioManager.getStreamMaxVolume(AudioManager.STREAM_ALARM);
+                    audioManager.setStreamVolume(AudioManager.STREAM_ALARM, maxVol, 0);
+                } else {
+                    mediaPlayer.setVolume(1.0f, 1.0f);
+                }
             }
             mediaPlayer.setAudioStreamType(AudioManager.STREAM_ALARM);
             mediaPlayer.setLooping(true);
