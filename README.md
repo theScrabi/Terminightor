@@ -2,7 +2,10 @@
 [![Terminightor](https://f-droid.org/repo/icons/org.schabi.terminightor.2.png)](https://f-droid.org/repository/browse/?fdid=org.schabi.terminightor)
 A NFC tag based alarm clock for Android.
 
-[![F-Droid](https://f-droid.org/wiki/images/0/06/F-Droid-button_get-it-on.png)](https://f-droid.org/repository/browse/?fdfilter=newpipe&fdid=org.schabi.terminightor)
+[![F-Droid](./assets/fdroid_badge.png)](https://f-droid.org/repository/browse/?fdfilter=newpipe&fdid=org.schabi.terminightor)
+[![PlayStore](./assets/ps_badge.png)](https://play.google.com/store/apps/details?id=org.schabi.terminightor)
+
+(The last link is if you want to grand me a little fee ;)
 
 ## Description
 Terminightor is a simple alarm clock for Android with a spicy special. In order to put off an alarm, you have to hold a NFC tag onto your phone. Unless you do that the alarm will not stop, even if you try to kill the Terminightor service.
