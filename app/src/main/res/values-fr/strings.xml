@@ -1,0 +1,31 @@
+<resources>
+    <string name="app_name">Terminightor</string>
+    <string name="title_alarmitem_detail">Alarme</string>
+    <string name="pm">PM</string>
+    <string name="am">AM</string>
+    <string name="repeatCheckBoxText">Répéter</string>
+    <string name="days_of_week_letters">LMMJVSD</string>
+    <string name="alarmLabelBoxHint">Nom</string>
+    <string name="title_set_tag">Ajouter Tag</string>
+    <string name="tapToCancel">Appuyez pour annuler</string>
+    <string name="noTagSet">Aucun Tag</string>
+    <string name="noNfcTagMessage">Aucun tag NFC défini. Veuillez en définir un.</string>
+    <string name="ok">OK</string>
+    <string name="cancel">Annuler</string>
+    <string name="wrongTagToast">Tag incorrect.</string>
+    <string name="alarm">Alarme!!!</string>
+    <string name="noneAlarmTone">Aucun</string>
+    <string name="selectAlarmToneTitle">Alarme</string>
+    <string name="title_activity_settings">Paramètres</string>
+    <string name="title_activity_night_killer">Night Killer</string>
+    <string name="use24HoursTitle">Affichage au format 24 heures.</string>
+    <string name="vibrate">Vibrer</string>
+    <string name="overrideAlarmVolumeTitle">Remplacer le volume d'alarme.</string>
+    <string name="overrideAlarmVolumeDescription">Mettre l\'alarme au volume maximal quand elle se déclenche.</string>
+    <string name="warningText">ATTENTION : N\'utilisez pas des tags NFC qui changent leur identifiant chaque fois qu\'ils sont lus.</string>
+    <string name="unlockInfoText">Déverrouiller l\'écran et activer le NFC.</string>
+    <string name="defaultRingTone">Défaut</string>
+    <string name="alarmSaved">Alarme enregistrée</string>
+    <string name="ignoreNfcTagIdTitle">Ignorer l\'ID du Tag NFC</string>
+    <string name="ignoreNfcTagIdSummary">Si vous approuvez cette option, Terminightor ne vérifie pas l\'ID de l\'étiquette NFC lors de la désactivation de l\'alarme.</string>
+</resources>
